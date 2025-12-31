@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="spotcogs-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1DB954"/>
+      <stop offset="100%" style="stop-color:#1ed760"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="64" cy="64" r="60" fill="#121212"/>
+
+  <!-- Spotify-inspired waves -->
+  <g fill="none" stroke="url(#spotcogs-grad)" stroke-linecap="round" stroke-width="8">
+    <!-- Top wave -->
+    <path d="M32 48c20-8 44-8 64 0" opacity="0.9"/>
+    <!-- Middle wave -->
+    <path d="M38 68c16-6 36-6 52 0"/>
+    <!-- Bottom wave -->
+    <path d="M44 88c12-5 28-5 40 0" opacity="0.8"/>
+  </g>
+
+  <!-- Gear/cog accent (small) -->
+  <g transform="translate(88, 88) scale(0.35)" fill="#1DB954">
+    <path d="M20 8.5V4h-4v4.5a8 8 0 00-2.3.9L11 6.7 8 9.7l2.7 2.7a8 8 0 00-.9 2.3H4v4h5.5a8 8 0 00.9 2.3L8 23.7l3 3 2.7-2.7a8 8 0 002.3.9V30h4v-5.1a8 8 0 002.3-.9l2.7 2.7 3-3-2.7-2.7a8 8 0 00.9-2.3H30v-4h-4.5a8 8 0 00-.9-2.3l2.7-2.7-3-3-2.7 2.7a8 8 0 00-2.3-.9V4h-4v4.5zM18 24a6 6 0 110-12 6 6 0 010 12z"/>
+  </g>
+</svg>

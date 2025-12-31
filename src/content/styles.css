@@ -1,0 +1,171 @@
+/**
+ * Spotcogs Content Styles
+ * Styles for Spotify embeds injected into Discogs pages
+ */
+
+.spotcogs-player-container {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #121212;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin: 16px 0;
+}
+
+.spotcogs-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #121212 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.spotcogs-header span {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.spotcogs-player-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+.spotcogs-spotify-embed {
+  display: block;
+  border: none;
+  border-radius: 12px;
+}
+
+.spotcogs-badge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(18, 18, 18, 0.9);
+  backdrop-filter: blur(8px);
+  border-radius: 20px;
+  padding: 4px 10px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.spotcogs-player-container:hover .spotcogs-badge {
+  opacity: 1;
+}
+
+.spotcogs-badge-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  color: #1DB954;
+  letter-spacing: 0.02em;
+}
+
+.spotcogs-badge-text svg {
+  flex-shrink: 0;
+}
+
+/* No match state */
+.spotcogs-no-match {
+  width: 100%;
+  max-width: 400px;
+  background: linear-gradient(145deg, #1a1a1a 0%, #121212 100%);
+  border-radius: 12px;
+  padding: 32px 24px;
+  box-sizing: border-box;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.spotcogs-no-match-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.spotcogs-no-match p {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  font-size: 14px;
+  color: #b3b3b3;
+}
+
+.spotcogs-search-term {
+  font-weight: 600;
+  color: #ffffff !important;
+  word-break: break-word;
+}
+
+.spotcogs-search-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 10px 20px;
+  background: #1DB954;
+  color: #000000;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 24px;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.spotcogs-search-link:hover {
+  background: #1ed760;
+  transform: scale(1.04);
+}
+
+/* Loading state */
+.spotcogs-loading {
+  width: 100%;
+  max-width: 400px;
+  height: 352px;
+  background: linear-gradient(145deg, #1a1a1a 0%, #121212 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spotcogs-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(29, 185, 84, 0.2);
+  border-top-color: #1DB954;
+  border-radius: 50%;
+  animation: spotcogs-spin 0.8s linear infinite;
+}
+
+@keyframes spotcogs-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Animation for embed entrance */
+@keyframes spotcogs-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.spotcogs-player-container,
+.spotcogs-no-match {
+  animation: spotcogs-fade-in 0.3s ease-out;
+}
