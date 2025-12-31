@@ -52,34 +52,32 @@ Spotcogs is a Chrome extension that automatically detects Apple Music embeds on 
 
 ## 🔧 Configuration
 
-### Spotify API Setup (Recommended)
+### Spotify API Setup (Required)
 
-For the best experience with accurate album matching:
+The extension uses Spotify's API to search for albums. Setup takes ~2 minutes:
 
-1. Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
-2. Log in with your Spotify account
-3. Click **Create App**
-4. Fill in the details:
+1. **Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)**
+2. **Log in** with your Spotify account (free account works fine)
+3. **Click the Spotcogs extension icon** to see your Redirect URI
+4. **Click "Create App"** in Spotify Dashboard and fill in:
    - App name: `Spotcogs`
    - App description: `Chrome extension for Discogs`
-   - Redirect URI: `https://YOUR_EXTENSION_ID.chromiumapp.org/spotify`
+   - Redirect URI: Copy from the extension popup (looks like `https://xxx.chromiumapp.org/`)
+   - Check "Web API" under APIs
+5. **Click "Save"** and then **"Settings"**
+6. **Copy your Client ID and Client Secret**
+7. **Paste your credentials** in the Spotcogs popup and click "Save & Connect"
 
-   To find your extension ID:
-   - Go to `chrome://extensions/`
-   - Find Spotcogs and copy the ID shown below the extension name
+> **Note**: Your credentials are stored locally in your browser and never sent anywhere except Spotify's API.
 
-5. Save and copy your **Client ID**
-6. Edit `src/background/background.js`:
-   ```javascript
-   const CLIENT_ID = 'your_actual_client_id_here';
-   ```
-7. Reload the extension in `chrome://extensions/`
+### Why API Keys?
 
-### Without Spotify API
-
-The extension works without Spotify authentication, but with limited functionality:
-- Album matching may be less accurate
-- Some releases may not be found
+Spotify requires authentication for all search requests. The Client Credentials flow:
+- ✅ No user login required
+- ✅ Works automatically in the background
+- ✅ Free tier is sufficient (no premium needed)
+- ✅ Your keys stay local in your browser
+- ✅ Easy setup through the extension popup
 
 ## 🚀 Usage
 

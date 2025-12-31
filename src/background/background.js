@@ -1,26 +1,24 @@
 /**
  * Spotcogs Background Service Worker
- * Handles Spotify API authentication and search requests
+ * Handles Spotify API authentication and album search
  */
 
 // Spotify API configuration
-const SPOTIFY_AUTH_URL = 'https://accounts.spotify.com/authorize';
 const SPOTIFY_TOKEN_URL = 'https://accounts.spotify.com/api/token';
 const SPOTIFY_API_URL = 'https://api.spotify.com/v1';
 
-// You'll need to register your app at https://developer.spotify.com/dashboard
-// and replace these with your actual credentials
-const CLIENT_ID = 'YOUR_SPOTIFY_CLIENT_ID';
+// Credentials (loaded from storage)
+let clientId = null;
+let clientSecret = null;
 
-// Lazily get redirect URI to avoid errors during service worker initialization
-function getRedirectUri() {
-  return chrome.identity.getRedirectURL('spotify');
-}
-
+// Token storage
 let accessToken = null;
 let tokenExpiresAt = null;
 
-// Message listener for content script requests
+// =============================================================================
+// Message Handling
+// =============================================================================
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'SEARCH_SPOTIFY') {
     handleSpotifySearch(message.payload)
@@ -29,16 +27,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         console.error('[Spotcogs] Search error:', error);
         sendResponse(null);
       });
-    return true; // Keep the message channel open for async response
+    return true;
   }
 
   if (message.type === 'GET_AUTH_STATUS') {
-    sendResponse({ isAuthenticated: !!accessToken && Date.now() < tokenExpiresAt });
+    const isConfigured = !!(clientId && clientSecret);
+    const isAuthenticated = isConfigured && !!accessToken && Date.now() < tokenExpiresAt;
+    sendResponse({ isAuthenticated, isConfigured });
     return true;
   }
 
   if (message.type === 'AUTHENTICATE') {
-    authenticateSpotify()
+    // Reload credentials from storage and authenticate
+    loadCredentialsAndAuthenticate()
       .then((success) => sendResponse({ success }))
       .catch((error) => {
         console.error('[Spotcogs] Auth error:', error);
@@ -50,207 +51,320 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'LOGOUT') {
     accessToken = null;
     tokenExpiresAt = null;
-    chrome.storage.sync.remove(['spotifyToken', 'spotifyTokenExpires']);
+    chrome.storage.local.remove(['spotifyToken', 'spotifyTokenExpires']);
     sendResponse({ success: true });
     return true;
   }
 });
 
-// Initialize: try to restore token from storage
-chrome.storage.sync.get(['spotifyToken', 'spotifyTokenExpires'], (result) => {
-  if (result.spotifyToken && result.spotifyTokenExpires > Date.now()) {
-    accessToken = result.spotifyToken;
-    tokenExpiresAt = result.spotifyTokenExpires;
+// =============================================================================
+// Initialization
+// =============================================================================
+
+async function initialize() {
+  console.log('[Spotcogs] Initializing background service...');
+
+  // Load credentials from storage
+  const stored = await chrome.storage.local.get([
+    'spotifyClientId',
+    'spotifyClientSecret',
+    'spotifyToken',
+    'spotifyTokenExpires'
+  ]);
+
+  clientId = stored.spotifyClientId || null;
+  clientSecret = stored.spotifyClientSecret || null;
+
+  // Try to restore existing token
+  if (stored.spotifyToken && stored.spotifyTokenExpires > Date.now()) {
+    accessToken = stored.spotifyToken;
+    tokenExpiresAt = stored.spotifyTokenExpires;
     console.log('[Spotcogs] Restored Spotify token from storage');
+    return;
   }
-});
+
+  // If we have credentials but no valid token, get a new one
+  if (clientId && clientSecret) {
+    console.log('[Spotcogs] Getting new token...');
+    await getClientCredentialsToken();
+  } else {
+    console.log('[Spotcogs] No credentials configured yet');
+  }
+}
+
+initialize();
+
+// =============================================================================
+// Credentials & Authentication
+// =============================================================================
 
 /**
- * Authenticate with Spotify using OAuth 2.0
+ * Load credentials from storage and authenticate
  */
-async function authenticateSpotify() {
-  const scopes = ['user-read-private'];
-  const state = generateRandomString(16);
+async function loadCredentialsAndAuthenticate() {
+  const stored = await chrome.storage.local.get(['spotifyClientId', 'spotifyClientSecret']);
 
-  const authUrl = new URL(SPOTIFY_AUTH_URL);
-  authUrl.searchParams.set('client_id', CLIENT_ID);
-  authUrl.searchParams.set('response_type', 'token');
-  authUrl.searchParams.set('redirect_uri', getRedirectUri());
-  authUrl.searchParams.set('scope', scopes.join(' '));
-  authUrl.searchParams.set('state', state);
+  clientId = stored.spotifyClientId || null;
+  clientSecret = stored.spotifyClientSecret || null;
 
-  return new Promise((resolve, reject) => {
-    chrome.identity.launchWebAuthFlow(
-      {
-        url: authUrl.toString(),
-        interactive: true
-      },
-      (redirectUrl) => {
-        if (chrome.runtime.lastError) {
-          reject(new Error(chrome.runtime.lastError.message));
-          return;
-        }
+  if (!clientId || !clientSecret) {
+    throw new Error('Credentials not configured');
+  }
 
-        if (!redirectUrl) {
-          reject(new Error('No redirect URL received'));
-          return;
-        }
-
-        // Extract token from URL hash
-        const url = new URL(redirectUrl);
-        const hash = url.hash.substring(1);
-        const params = new URLSearchParams(hash);
-
-        const token = params.get('access_token');
-        const expiresIn = parseInt(params.get('expires_in'), 10);
-
-        if (token) {
-          accessToken = token;
-          tokenExpiresAt = Date.now() + expiresIn * 1000;
-
-          // Save to storage
-          chrome.storage.sync.set({
-            spotifyToken: accessToken,
-            spotifyTokenExpires: tokenExpiresAt
-          });
-
-          console.log('[Spotcogs] Successfully authenticated with Spotify');
-          resolve(true);
-        } else {
-          reject(new Error('No access token in response'));
-        }
-      }
-    );
-  });
+  return await getClientCredentialsToken();
 }
+
+/**
+ * Get an access token using Client Credentials Flow
+ */
+async function getClientCredentialsToken() {
+  if (!clientId || !clientSecret) {
+    console.error('[Spotcogs] No credentials available');
+    return false;
+  }
+
+  try {
+    const credentials = btoa(`${clientId}:${clientSecret}`);
+
+    const response = await fetch(SPOTIFY_TOKEN_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${credentials}`,
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: 'grant_type=client_credentials'
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[Spotcogs] Token request failed:', response.status, errorText);
+      throw new Error(`Authentication failed (${response.status})`);
+    }
+
+    const data = await response.json();
+
+    accessToken = data.access_token;
+    tokenExpiresAt = Date.now() + (data.expires_in * 1000) - 60000; // Refresh 1 min early
+
+    // Save to storage
+    await chrome.storage.local.set({
+      spotifyToken: accessToken,
+      spotifyTokenExpires: tokenExpiresAt
+    });
+
+    console.log('[Spotcogs] Successfully obtained Spotify token');
+    return true;
+  } catch (error) {
+    console.error('[Spotcogs] Failed to get token:', error);
+    throw error;
+  }
+}
+
+/**
+ * Ensure we have a valid token
+ */
+async function ensureValidToken() {
+  if (!clientId || !clientSecret) {
+    return false;
+  }
+
+  if (!accessToken || Date.now() >= tokenExpiresAt) {
+    return await getClientCredentialsToken();
+  }
+  return true;
+}
+
+// =============================================================================
+// Album Search
+// =============================================================================
 
 /**
  * Search Spotify for an album matching the given metadata
  */
 async function handleSpotifySearch(metadata) {
-  // Ensure we have a valid token
-  if (!accessToken || Date.now() >= tokenExpiresAt) {
-    console.log('[Spotcogs] No valid token, searching without auth (limited)');
-    return searchSpotifyWithoutAuth(metadata);
+  console.log('[Spotcogs] Searching for album:', metadata);
+
+  const hasToken = await ensureValidToken();
+
+  if (!hasToken) {
+    console.log('[Spotcogs] No valid token available');
+    return null;
   }
 
-  const { artist, album, year } = metadata;
+  const { artist, album } = metadata;
 
-  // Build search query
-  let query = `album:${album}`;
-  if (artist) {
-    query += ` artist:${artist}`;
+  if (!artist && !album) {
+    console.log('[Spotcogs] No search terms provided');
+    return null;
   }
 
+  // Clean search terms
+  const cleanArtist = cleanSearchTerm(artist);
+  const cleanAlbum = cleanSearchTerm(album);
+
+  // Try search strategies in order of specificity
+  const strategies = [
+    // Strategy 1: Exact album + artist search
+    () => searchAlbums(`album:"${cleanAlbum}" artist:"${cleanArtist}"`, cleanArtist, cleanAlbum),
+    // Strategy 2: Album + artist without quotes
+    () => searchAlbums(`album:${cleanAlbum} artist:${cleanArtist}`, cleanArtist, cleanAlbum),
+    // Strategy 3: Simple combined search
+    () => searchAlbums(`${cleanArtist} ${cleanAlbum}`, cleanArtist, cleanAlbum),
+    // Strategy 4: Just album with artist filter in results
+    () => searchAlbums(`"${cleanAlbum}"`, cleanArtist, cleanAlbum),
+  ];
+
+  for (const strategy of strategies) {
+    const result = await strategy();
+    if (result) {
+      console.log('[Spotcogs] Found album:', result.name, 'by', result.artist);
+      return result;
+    }
+  }
+
+  console.log('[Spotcogs] No album match found');
+  return null;
+}
+
+/**
+ * Clean a search term for better matching
+ */
+function cleanSearchTerm(term) {
+  if (!term) return '';
+
+  return term
+    // Remove Discogs disambiguation numbers like (2), (3)
+    .replace(/\s*\(\d+\)\s*$/g, '')
+    // Remove edition/version info in brackets
+    .replace(/\s*\[.*?\]\s*/g, '')
+    .replace(/\s*\(.*?edition.*?\)\s*/gi, '')
+    .replace(/\s*\(.*?remaster.*?\)\s*/gi, '')
+    .replace(/\s*\(.*?version.*?\)\s*/gi, '')
+    .replace(/\s*\(.*?deluxe.*?\)\s*/gi, '')
+    .replace(/\s*\(.*?bonus.*?\)\s*/gi, '')
+    // Normalize quotes
+    .replace(/['']/g, "'")
+    .replace(/[""]/g, '"')
+    // Clean whitespace
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * Search for albums on Spotify
+ */
+async function searchAlbums(query, expectedArtist, expectedAlbum) {
   try {
-    const response = await fetch(
-      `${SPOTIFY_API_URL}/search?q=${encodeURIComponent(query)}&type=album&limit=5`,
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-      }
-    );
+    // Only search for albums
+    const url = `${SPOTIFY_API_URL}/search?q=${encodeURIComponent(query)}&type=album&limit=20&market=US`;
+
+    console.log('[Spotcogs] Query:', query);
+
+    const response = await fetch(url, {
+      headers: { 'Authorization': `Bearer ${accessToken}` }
+    });
 
     if (!response.ok) {
       if (response.status === 401) {
-        // Token expired, clear it
         accessToken = null;
         tokenExpiresAt = null;
-        chrome.storage.sync.remove(['spotifyToken', 'spotifyTokenExpires']);
-        return searchSpotifyWithoutAuth(metadata);
+        const refreshed = await getClientCredentialsToken();
+        if (refreshed) {
+          return searchAlbums(query, expectedArtist, expectedAlbum);
+        }
       }
-      throw new Error(`Spotify API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return findBestMatch(data.albums?.items || [], metadata);
-  } catch (error) {
-    console.error('[Spotcogs] Spotify search error:', error);
-    return null;
-  }
-}
-
-/**
- * Search Spotify without authentication (uses embed endpoint)
- * This is a fallback that has more limited functionality
- */
-async function searchSpotifyWithoutAuth(metadata) {
-  const { artist, album } = metadata;
-  const searchQuery = `${artist} ${album}`;
-
-  try {
-    // Use the Spotify oEmbed endpoint which doesn't require auth
-    const response = await fetch(
-      `https://open.spotify.com/oembed?url=https://open.spotify.com/search/${encodeURIComponent(searchQuery)}`
-    );
-
-    if (!response.ok) {
+      console.error('[Spotcogs] Search failed:', response.status);
       return null;
     }
 
-    // The oEmbed doesn't give us search results directly
-    // We need to return a search link instead
-    return null;
+    const data = await response.json();
+    const albums = data.albums?.items || [];
+
+    if (albums.length === 0) {
+      return null;
+    }
+
+    // Find the best matching album
+    return findBestAlbumMatch(albums, expectedArtist, expectedAlbum);
   } catch (error) {
-    console.error('[Spotcogs] Fallback search error:', error);
+    console.error('[Spotcogs] Search error:', error);
     return null;
   }
 }
 
 /**
- * Find the best matching album from search results
+ * Find the best matching album from results
  */
-function findBestMatch(albums, metadata) {
-  if (!albums || albums.length === 0) {
-    return null;
-  }
-
-  const normalizedArtist = normalizeString(metadata.artist);
-  const normalizedAlbum = normalizeString(metadata.album);
+function findBestAlbumMatch(albums, expectedArtist, expectedAlbum) {
+  const normalizedArtist = normalizeForComparison(expectedArtist);
+  const normalizedAlbum = normalizeForComparison(expectedAlbum);
 
   // Score each album
-  const scored = albums.map((album) => {
+  const scored = albums.map(album => {
     let score = 0;
 
-    // Check artist match
-    const albumArtists = album.artists.map((a) => normalizeString(a.name));
-    if (albumArtists.some((a) => a.includes(normalizedArtist) || normalizedArtist.includes(a))) {
-      score += 50;
-    }
+    const albumName = normalizeForComparison(album.name);
+    const artistNames = album.artists.map(a => normalizeForComparison(a.name));
 
-    // Check album name match
-    const albumName = normalizeString(album.name);
+    // Album name matching (most important)
     if (albumName === normalizedAlbum) {
-      score += 50;
+      score += 100; // Exact match
     } else if (albumName.includes(normalizedAlbum) || normalizedAlbum.includes(albumName)) {
-      score += 30;
+      score += 60; // Partial match
+    } else if (fuzzyMatch(albumName, normalizedAlbum) > 0.7) {
+      score += 40; // Fuzzy match
     }
 
-    // Bonus for release year match
-    if (metadata.year && album.release_date) {
-      const albumYear = album.release_date.split('-')[0];
-      if (albumYear === metadata.year) {
-        score += 20;
-      }
+    // Artist matching
+    const artistMatch = artistNames.some(name =>
+      name === normalizedArtist ||
+      name.includes(normalizedArtist) ||
+      normalizedArtist.includes(name)
+    );
+
+    if (artistMatch) {
+      score += 50;
+    } else if (artistNames.some(name => fuzzyMatch(name, normalizedArtist) > 0.7)) {
+      score += 25;
+    }
+
+    // Prefer full albums over singles/compilations
+    if (album.album_type === 'album') {
+      score += 15;
+    } else if (album.album_type === 'single') {
+      score -= 10;
+    } else if (album.album_type === 'compilation') {
+      score -= 5;
+    }
+
+    // Prefer albums with more tracks (likely to be the full album)
+    if (album.total_tracks >= 8) {
+      score += 5;
     }
 
     return { album, score };
   });
 
-  // Sort by score and get the best match
+  // Sort by score
   scored.sort((a, b) => b.score - a.score);
 
-  // Only return if we have a reasonable match (score > 50)
-  if (scored[0].score >= 50) {
-    const bestMatch = scored[0].album;
+  // Log top matches for debugging
+  console.log('[Spotcogs] Top matches:', scored.slice(0, 3).map(s =>
+    `${s.album.name} by ${s.album.artists[0]?.name} (score: ${s.score})`
+  ));
+
+  // Return best match if score is good enough
+  const best = scored[0];
+  if (best && best.score >= 50) {
     return {
-      uri: bestMatch.uri,
+      uri: best.album.uri,
+      id: best.album.id,
       type: 'album',
-      name: bestMatch.name,
-      artist: bestMatch.artists[0]?.name,
-      image: bestMatch.images[0]?.url,
-      url: bestMatch.external_urls?.spotify
+      name: best.album.name,
+      artist: best.album.artists?.[0]?.name,
+      image: best.album.images?.[0]?.url,
+      url: best.album.external_urls?.spotify,
+      totalTracks: best.album.total_tracks
     };
   }
 
@@ -258,38 +372,84 @@ function findBestMatch(albums, metadata) {
 }
 
 /**
- * Normalize a string for comparison
+ * Normalize string for comparison
  */
-function normalizeString(str) {
+function normalizeForComparison(str) {
   if (!str) return '';
   return str
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
-    .replace(/[^\w\s]/g, '') // Remove special characters
-    .replace(/\s+/g, ' ')
+    .replace(/[^\w\s]/g, ' ')        // Replace special chars with space
+    .replace(/\s+/g, ' ')            // Collapse whitespace
     .trim();
 }
 
 /**
- * Generate a random string for OAuth state
+ * Simple fuzzy matching (Dice coefficient)
  */
-function generateRandomString(length) {
-  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let text = '';
-  for (let i = 0; i < length; i++) {
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
+function fuzzyMatch(str1, str2) {
+  if (!str1 || !str2) return 0;
+  if (str1 === str2) return 1;
+
+  const bigrams1 = getBigrams(str1);
+  const bigrams2 = getBigrams(str2);
+
+  let matches = 0;
+  for (const bigram of bigrams1) {
+    if (bigrams2.has(bigram)) {
+      matches++;
+    }
   }
-  return text;
+
+  return (2 * matches) / (bigrams1.size + bigrams2.size);
 }
 
-// Extension installation/update handler
+function getBigrams(str) {
+  const bigrams = new Set();
+  for (let i = 0; i < str.length - 1; i++) {
+    bigrams.add(str.substring(i, i + 2));
+  }
+  return bigrams;
+}
+
+// =============================================================================
+// Extension Lifecycle
+// =============================================================================
+
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === 'install') {
     console.log('[Spotcogs] Extension installed');
-    // Set default settings
     chrome.storage.sync.set({ enabled: true });
   } else if (details.reason === 'update') {
     console.log('[Spotcogs] Extension updated to version', chrome.runtime.getManifest().version);
   }
 });
+
+// Listen for credential changes
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName === 'local') {
+    if (changes.spotifyClientId || changes.spotifyClientSecret) {
+      console.log('[Spotcogs] Credentials changed, will re-authenticate on next request');
+      // Clear token so it will be refreshed
+      accessToken = null;
+      tokenExpiresAt = null;
+
+      // Update local values
+      if (changes.spotifyClientId) {
+        clientId = changes.spotifyClientId.newValue;
+      }
+      if (changes.spotifyClientSecret) {
+        clientSecret = changes.spotifyClientSecret.newValue;
+      }
+    }
+  }
+});
+
+// Refresh token periodically (every 50 minutes)
+setInterval(async () => {
+  if (clientId && clientSecret && accessToken) {
+    console.log('[Spotcogs] Refreshing token...');
+    await getClientCredentialsToken();
+  }
+}, 50 * 60 * 1000);
