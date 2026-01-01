@@ -6,22 +6,30 @@ dist/
 build/
 
 # IDE
-.vscode/
 .idea/
+.vscode/
 *.swp
 *.swo
+*~
 
-# OS files
+# OS
 .DS_Store
 Thumbs.db
-
-# Environment variables
-.env
-.env.local
 
 # Logs
 *.log
 npm-debug.log*
 
-# Package files
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Package manager locks (optional - uncomment if not needed)
+# package-lock.json
+# yarn.lock
+
+# Chrome extension development
+*.pem
+*.crx
 *.zip

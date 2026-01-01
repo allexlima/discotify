@@ -528,3 +528,12 @@ body::-webkit-scrollbar-thumb:hover {
 .popup-container {
   animation: fadeIn 0.2s ease;
 }
+
+/* Spinner animation for loading states */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}

@@ -3,6 +3,8 @@
  * Handles extension settings and Spotify API configuration
  */
 
+'use strict';
+
 document.addEventListener('DOMContentLoaded', () => {
   // Elements
   const enabledToggle = document.getElementById('enabled-toggle');
@@ -273,14 +275,4 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// Add spinner animation
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-  .spinner {
-    animation: spin 1s linear infinite;
-  }
-`;
-document.head.appendChild(style);
+// Spinner animation is now defined in popup.css

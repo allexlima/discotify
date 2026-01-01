@@ -3,11 +3,21 @@
  * Handles Spotify API authentication and album search
  */
 
+'use strict';
+
 // Spotify API configuration
 const SPOTIFY_TOKEN_URL = 'https://accounts.spotify.com/api/token';
 const SPOTIFY_API_URL = 'https://api.spotify.com/v1';
 
-// Credentials (loaded from storage)
+/**
+ * Credentials loaded from chrome.storage.local
+ *
+ * SECURITY NOTE: Client credentials are stored in the browser's local storage.
+ * This is necessary for the extension to function but users should be aware
+ * that these credentials are accessible to anyone with access to the browser.
+ * The credentials are only used to authenticate with Spotify's API and are
+ * never transmitted elsewhere.
+ */
 let clientId = null;
 let clientSecret = null;
 

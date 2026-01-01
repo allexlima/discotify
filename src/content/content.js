@@ -3,9 +3,14 @@
  * Detects Apple Music embeds on Discogs and replaces them with Spotify players
  */
 
+'use strict';
+
 class Spotcogs {
   constructor() {
     this.isEnabled = true;
+    this.urlCheckInterval = null;
+    this.domObserver = null;
+
     // Selectors for Apple Music elements on Discogs
     // Discogs uses MusicKit JS widgets, not iframes
     this.appleMusicSelectors = [
@@ -54,7 +59,7 @@ class Spotcogs {
 
   observeUrlChanges() {
     // Check for URL changes periodically (handles pushState/replaceState)
-    setInterval(() => {
+    this.urlCheckInterval = setInterval(() => {
       if (window.location.href !== this.currentUrl) {
         console.log('[Spotcogs] URL changed, resetting...');
         this.handleNavigation();
@@ -62,10 +67,30 @@ class Spotcogs {
     }, 500);
 
     // Also listen for popstate (back/forward navigation)
-    window.addEventListener('popstate', () => {
+    this.handlePopstate = () => {
       console.log('[Spotcogs] Popstate detected, resetting...');
       this.handleNavigation();
-    });
+    };
+    window.addEventListener('popstate', this.handlePopstate);
+  }
+
+  /**
+   * Clean up observers and intervals to prevent memory leaks
+   */
+  destroy() {
+    if (this.urlCheckInterval) {
+      clearInterval(this.urlCheckInterval);
+      this.urlCheckInterval = null;
+    }
+    if (this.domObserver) {
+      this.domObserver.disconnect();
+      this.domObserver = null;
+    }
+    if (this.handlePopstate) {
+      window.removeEventListener('popstate', this.handlePopstate);
+      this.handlePopstate = null;
+    }
+    this.cleanupPlayers();
   }
 
   handleNavigation() {
@@ -207,6 +232,18 @@ class Spotcogs {
     // Check if we're on a Discogs release page
     const url = window.location.pathname;
     return url.includes('/release/') || url.includes('/master/');
+  }
+
+  /**
+   * Escape HTML special characters to prevent XSS attacks
+   * @param {string} text - Text to escape
+   * @returns {string} Escaped text safe for innerHTML
+   */
+  escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
   }
 
   async addSpotifyPlayerToPage() {
@@ -444,15 +481,22 @@ class Spotcogs {
   showNoMatchMessage(originalEmbed, metadata) {
     const container = document.createElement('div');
     container.className = 'spotcogs-no-match';
+
+    // Escape user-provided content to prevent XSS
+    const safeArtist = this.escapeHtml(metadata.artist);
+    const safeAlbum = this.escapeHtml(metadata.album);
+    const searchQuery = encodeURIComponent(`${metadata.artist || ''} ${metadata.album || ''}`);
+
     container.innerHTML = `
       <div class="spotcogs-no-match-content">
         <svg viewBox="0 0 24 24" width="32" height="32" fill="#1DB954">
           <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
         </svg>
         <p>No Spotify match found for:</p>
-        <p class="spotcogs-search-term">${metadata.artist} - ${metadata.album}</p>
-        <a href="https://open.spotify.com/search/${encodeURIComponent(`${metadata.artist} ${metadata.album}`)}"
+        <p class="spotcogs-search-term">${safeArtist} - ${safeAlbum}</p>
+        <a href="https://open.spotify.com/search/${searchQuery}"
            target="_blank"
+           rel="noopener noreferrer"
            class="spotcogs-search-link">
           Search on Spotify
         </a>
@@ -463,22 +507,23 @@ class Spotcogs {
   }
 
   observeDOM() {
-    const observer = new MutationObserver((mutations) => {
+    this.domObserver = new MutationObserver((mutations) => {
       // Skip if already processed, currently processing, or player exists
       if (this.processed || this.processing) return;
       if (document.querySelector('.spotcogs-player-container')) return;
 
       let shouldProcess = false;
 
-      mutations.forEach((mutation) => {
+      for (const mutation of mutations) {
         if (mutation.addedNodes.length) {
-          mutation.addedNodes.forEach((node) => {
+          for (const node of mutation.addedNodes) {
             if (node.nodeType === Node.ELEMENT_NODE) {
               // Check if any Apple Music related content was added
               const html = node.innerHTML || '';
               if (html.toLowerCase().includes('apple') &&
                   html.toLowerCase().includes('music')) {
                 shouldProcess = true;
+                break;
               }
 
               // Also check our selectors
@@ -489,18 +534,22 @@ class Spotcogs {
                   return false;
                 }
               });
-              if (hasEmbed) shouldProcess = true;
+              if (hasEmbed) {
+                shouldProcess = true;
+                break;
+              }
             }
-          });
+          }
         }
-      });
+        if (shouldProcess) break;
+      }
 
       if (shouldProcess) {
         setTimeout(() => this.processPage(), 500);
       }
     });
 
-    observer.observe(document.body, {
+    this.domObserver.observe(document.body, {
       childList: true,
       subtree: true
     });
