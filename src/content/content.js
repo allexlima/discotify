@@ -58,6 +58,12 @@ class Spotcogs {
   processPage() {
     if (this.processed) return;
 
+    // Check if we already have a Spotify player on the page
+    if (document.querySelector('.spotcogs-player-container')) {
+      this.processed = true;
+      return;
+    }
+
     // First, try to find Apple Music embeds with selectors
     let embeds = this.findAppleMusicEmbeds();
     console.log(`[Spotcogs] Found ${embeds.length} Apple Music embed(s) via selectors`);
@@ -76,16 +82,19 @@ class Spotcogs {
       // Still try to add Spotify player if we're on a release page
       if (this.isReleasePage()) {
         console.log('[Spotcogs] This is a release page, adding Spotify player');
+        // Mark as processed immediately to prevent duplicate calls
+        this.processed = true;
         this.addSpotifyPlayerToPage();
       }
       return;
     }
 
+    // Mark as processed before async operations
+    this.processed = true;
+
     embeds.forEach((embed) => {
       this.replaceEmbed(embed);
     });
-
-    this.processed = true;
   }
 
   findAppleMusicEmbeds() {
@@ -213,7 +222,6 @@ class Spotcogs {
     }
 
     console.log('[Spotcogs] Inserted Spotify player');
-    this.processed = true;
   }
 
   async replaceEmbed(embed) {
