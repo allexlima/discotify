@@ -1,9 +1,9 @@
 /**
- * Spotcogs Content Styles
+ * Discotify Content Styles
  * Styles for Spotify embeds injected into Discogs pages
  */
 
-.spotcogs-player-container {
+.discotify-player-container {
   position: relative;
   width: 100%;
   max-width: 100%;
@@ -15,7 +15,7 @@
   margin: 16px 0;
 }
 
-.spotcogs-header {
+.discotify-header {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -24,25 +24,25 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.spotcogs-header span {
+.discotify-header span {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
   font-size: 14px;
   font-weight: 600;
   color: #ffffff;
 }
 
-.spotcogs-player-container:hover {
+.discotify-player-container:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
 }
 
-.spotcogs-spotify-embed {
+.discotify-spotify-embed {
   display: block;
   border: none;
   border-radius: 12px;
 }
 
-.spotcogs-badge {
+.discotify-badge {
   position: absolute;
   bottom: 8px;
   right: 8px;
@@ -54,11 +54,11 @@
   transition: opacity 0.2s ease;
 }
 
-.spotcogs-player-container:hover .spotcogs-badge {
+.discotify-player-container:hover .discotify-badge {
   opacity: 1;
 }
 
-.spotcogs-badge-text {
+.discotify-badge-text {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -69,12 +69,12 @@
   letter-spacing: 0.02em;
 }
 
-.spotcogs-badge-text svg {
+.discotify-badge-text svg {
   flex-shrink: 0;
 }
 
 /* No match state */
-.spotcogs-no-match {
+.discotify-no-match {
   width: 100%;
   max-width: 400px;
   background: linear-gradient(145deg, #1a1a1a 0%, #121212 100%);
@@ -85,27 +85,27 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.spotcogs-no-match-content {
+.discotify-no-match-content {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 12px;
 }
 
-.spotcogs-no-match p {
+.discotify-no-match p {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
   font-size: 14px;
   color: #b3b3b3;
 }
 
-.spotcogs-search-term {
+.discotify-search-term {
   font-weight: 600;
   color: #ffffff !important;
   word-break: break-word;
 }
 
-.spotcogs-search-link {
+.discotify-search-link {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -121,13 +121,13 @@
   transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
-.spotcogs-search-link:hover {
+.discotify-search-link:hover {
   background: #1ed760;
   transform: scale(1.04);
 }
 
 /* Loading state */
-.spotcogs-loading {
+.discotify-loading {
   width: 100%;
   max-width: 400px;
   height: 352px;
@@ -138,23 +138,23 @@
   justify-content: center;
 }
 
-.spotcogs-spinner {
+.discotify-spinner {
   width: 40px;
   height: 40px;
   border: 3px solid rgba(29, 185, 84, 0.2);
   border-top-color: #1DB954;
   border-radius: 50%;
-  animation: spotcogs-spin 0.8s linear infinite;
+  animation: discotify-spin 0.8s linear infinite;
 }
 
-@keyframes spotcogs-spin {
+@keyframes discotify-spin {
   to {
     transform: rotate(360deg);
   }
 }
 
 /* Animation for embed entrance */
-@keyframes spotcogs-fade-in {
+@keyframes discotify-fade-in {
   from {
     opacity: 0;
     transform: translateY(10px);
@@ -165,7 +165,7 @@
   }
 }
 
-.spotcogs-player-container,
-.spotcogs-no-match {
-  animation: spotcogs-fade-in 0.3s ease-out;
+.discotify-player-container,
+.discotify-no-match {
+  animation: discotify-fade-in 0.3s ease-out;
 }

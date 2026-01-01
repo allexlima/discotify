@@ -1,48 +1,79 @@
 /**
- * Icon Generator Script
+ * Discotify Icon Generator Script
  * Generates PNG icons from the SVG source
  *
  * Usage: node scripts/generate-icons.js
  *
- * Note: This is a simple script that creates placeholder base64 PNGs.
- * For production, you should use a proper image editor or tool like:
- * - Inkscape: inkscape -w 128 -h 128 icons/icon.svg -o icons/icon128.png
- * - ImageMagick: convert -background none -resize 128x128 icons/icon.svg icons/icon128.png
- * - Sharp (npm): See implementation below
+ * Prerequisites:
+ *   npm install sharp
+ *
+ * Or use external tools:
+ *   - Inkscape: inkscape -w 128 -h 128 icons/icon.svg -o icons/icon128.png
+ *   - ImageMagick: convert -background none -resize 128x128 icons/icon.svg icons/icon128.png
  */
+
+'use strict';
 
 const fs = require('fs');
 const path = require('path');
 
-// Simple 1x1 green pixel PNG as placeholder
-// In production, use Sharp or similar library to properly convert SVG
-const createPlaceholderPng = (size) => {
-  // This creates a minimal valid PNG file
-  // For proper icons, use a tool like Sharp:
-  //
-  // const sharp = require('sharp');
-  // sharp('icons/icon.svg')
-  //   .resize(size, size)
-  //   .png()
-  //   .toFile(`icons/icon${size}.png`);
-
-  console.log(`Note: Please generate icon${size}.png manually from icon.svg`);
-  console.log(`  Using Inkscape: inkscape -w ${size} -h ${size} icons/icon.svg -o icons/icon${size}.png`);
-  console.log(`  Using ImageMagick: convert -background none -resize ${size}x${size} icons/icon.svg icons/icon${size}.png`);
-  console.log('');
-};
-
 const sizes = [16, 32, 48, 128];
+const iconsDir = path.join(__dirname, '..', 'icons');
+const svgPath = path.join(iconsDir, 'icon.svg');
 
-console.log('=== Spotcogs Icon Generator ===\n');
-console.log('To generate PNG icons from the SVG source, use one of these methods:\n');
+async function generateIcons() {
+  // Try to use Sharp if available
+  try {
+    const sharp = require('sharp');
 
-sizes.forEach(size => {
-  createPlaceholderPng(size);
-});
+    console.log('=== Discotify Icon Generator ===\n');
+    console.log('Using Sharp to generate PNG icons...\n');
 
-console.log('Alternative: Use an online SVG to PNG converter');
-console.log('  - https://cloudconvert.com/svg-to-png');
-console.log('  - https://svgtopng.com/');
-console.log('\nOr install Sharp and uncomment the code in this script:');
-console.log('  npm install sharp');
+    const svgBuffer = fs.readFileSync(svgPath);
+
+    for (const size of sizes) {
+      const outputPath = path.join(iconsDir, `icon${size}.png`);
+
+      await sharp(svgBuffer)
+        .resize(size, size)
+        .png()
+        .toFile(outputPath);
+
+      console.log(`✓ Generated icon${size}.png`);
+    }
+
+    console.log('\n✅ All icons generated successfully!');
+  } catch (error) {
+    if (error.code === 'MODULE_NOT_FOUND') {
+      showManualInstructions();
+    } else {
+      console.error('Error generating icons:', error.message);
+    }
+  }
+}
+
+function showManualInstructions() {
+  console.log('=== Discotify Icon Generator ===\n');
+  console.log('Sharp module not found. To generate PNG icons:\n');
+
+  console.log('Option 1: Install Sharp and run again');
+  console.log('  npm install sharp');
+  console.log('  node scripts/generate-icons.js\n');
+
+  console.log('Option 2: Use Inkscape (command line)');
+  sizes.forEach(size => {
+    console.log(`  inkscape -w ${size} -h ${size} icons/icon.svg -o icons/icon${size}.png`);
+  });
+
+  console.log('\nOption 3: Use ImageMagick');
+  sizes.forEach(size => {
+    console.log(`  convert -background none -resize ${size}x${size} icons/icon.svg icons/icon${size}.png`);
+  });
+
+  console.log('\nOption 4: Online converters');
+  console.log('  - https://cloudconvert.com/svg-to-png');
+  console.log('  - https://svgtopng.com/');
+  console.log('  - https://convertio.co/svg-png/');
+}
+
+generateIcons();

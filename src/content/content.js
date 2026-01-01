@@ -1,11 +1,11 @@
 /**
- * Spotcogs Content Script
+ * Discotify Content Script
  * Detects Apple Music embeds on Discogs and replaces them with Spotify players
  */
 
 'use strict';
 
-class Spotcogs {
+class Discotify {
   constructor() {
     this.isEnabled = true;
     this.urlCheckInterval = null;
@@ -41,11 +41,11 @@ class Spotcogs {
     this.isEnabled = settings.enabled !== false;
 
     if (!this.isEnabled) {
-      console.log('[Spotcogs] Extension is disabled');
+      console.log('[Discotify] Extension is disabled');
       return;
     }
 
-    console.log('[Spotcogs] Initializing on:', window.location.href);
+    console.log('[Discotify] Initializing on:', window.location.href);
 
     // Wait a bit for dynamic content to load
     setTimeout(() => this.processPage(), 1000);
@@ -61,14 +61,14 @@ class Spotcogs {
     // Check for URL changes periodically (handles pushState/replaceState)
     this.urlCheckInterval = setInterval(() => {
       if (window.location.href !== this.currentUrl) {
-        console.log('[Spotcogs] URL changed, resetting...');
+        console.log('[Discotify] URL changed, resetting...');
         this.handleNavigation();
       }
     }, 500);
 
     // Also listen for popstate (back/forward navigation)
     this.handlePopstate = () => {
-      console.log('[Spotcogs] Popstate detected, resetting...');
+      console.log('[Discotify] Popstate detected, resetting...');
       this.handleNavigation();
     };
     window.addEventListener('popstate', this.handlePopstate);
@@ -106,9 +106,9 @@ class Spotcogs {
   }
 
   cleanupPlayers() {
-    const existingPlayers = document.querySelectorAll('.spotcogs-player-container, .spotcogs-no-match');
+    const existingPlayers = document.querySelectorAll('.discotify-player-container, .discotify-no-match');
     existingPlayers.forEach(player => {
-      console.log('[Spotcogs] Removing old player');
+      console.log('[Discotify] Removing old player');
       player.remove();
     });
   }
@@ -126,7 +126,7 @@ class Spotcogs {
     if (this.processed || this.processing) return;
 
     // Check if we already have a Spotify player on the page
-    if (document.querySelector('.spotcogs-player-container')) {
+    if (document.querySelector('.discotify-player-container')) {
       this.processed = true;
       return;
     }
@@ -136,22 +136,22 @@ class Spotcogs {
 
     // First, try to find Apple Music embeds with selectors
     let embeds = this.findAppleMusicEmbeds();
-    console.log(`[Spotcogs] Found ${embeds.length} Apple Music embed(s) via selectors`);
+    console.log(`[Discotify] Found ${embeds.length} Apple Music embed(s) via selectors`);
 
     // If no embeds found via selectors, try to find the Audio section on Discogs
     if (embeds.length === 0) {
       const audioSection = this.findDiscogsAudioSection();
       if (audioSection) {
-        console.log('[Spotcogs] Found Discogs audio section');
+        console.log('[Discotify] Found Discogs audio section');
         embeds = [audioSection];
       }
     }
 
     if (embeds.length === 0) {
-      console.log('[Spotcogs] No Apple Music content found on this page');
+      console.log('[Discotify] No Apple Music content found on this page');
       // Still try to add Spotify player if we're on a release page
       if (this.isReleasePage()) {
-        console.log('[Spotcogs] This is a release page, adding Spotify player');
+        console.log('[Discotify] This is a release page, adding Spotify player');
         this.processed = true;
         this.addSpotifyPlayerToPage();
       } else {
@@ -251,11 +251,11 @@ class Spotcogs {
     const metadata = this.extractDiscogsMetadata();
 
     if (!metadata.artist || !metadata.album) {
-      console.log('[Spotcogs] Could not extract metadata from page');
+      console.log('[Discotify] Could not extract metadata from page');
       return;
     }
 
-    console.log(`[Spotcogs] Searching Spotify for: ${metadata.artist} - ${metadata.album}`);
+    console.log(`[Discotify] Searching Spotify for: ${metadata.artist} - ${metadata.album}`);
 
     const spotifyData = await this.searchSpotify(metadata);
 
@@ -266,7 +266,7 @@ class Spotcogs {
         this.insertSpotifyPlayer(targetLocation, spotifyData);
       }
     } else {
-      console.log('[Spotcogs] No Spotify match found');
+      console.log('[Discotify] No Spotify match found');
     }
   }
 
@@ -294,8 +294,8 @@ class Spotcogs {
 
   insertSpotifyPlayer(location, spotifyData) {
     // Final check to prevent duplicates
-    if (document.querySelector('.spotcogs-player-container')) {
-      console.log('[Spotcogs] Player already exists, skipping insert');
+    if (document.querySelector('.discotify-player-container')) {
+      console.log('[Discotify] Player already exists, skipping insert');
       return;
     }
 
@@ -309,7 +309,7 @@ class Spotcogs {
       location.element.appendChild(container);
     }
 
-    console.log('[Spotcogs] Inserted Spotify player');
+    console.log('[Discotify] Inserted Spotify player');
   }
 
   async replaceEmbed(embed) {
@@ -317,23 +317,23 @@ class Spotcogs {
       const metadata = this.extractDiscogsMetadata();
 
       if (!metadata.artist || !metadata.album) {
-        console.log('[Spotcogs] Could not extract metadata from page');
-        console.log('[Spotcogs] Page title:', document.title);
+        console.log('[Discotify] Could not extract metadata from page');
+        console.log('[Discotify] Page title:', document.title);
         return;
       }
 
-      console.log(`[Spotcogs] Searching Spotify for: ${metadata.artist} - ${metadata.album}`);
+      console.log(`[Discotify] Searching Spotify for: ${metadata.artist} - ${metadata.album}`);
 
       const spotifyData = await this.searchSpotify(metadata);
 
       if (spotifyData && spotifyData.uri) {
         this.createSpotifyPlayer(embed, spotifyData);
       } else {
-        console.log('[Spotcogs] No Spotify match found');
+        console.log('[Discotify] No Spotify match found');
         this.showNoMatchMessage(embed, metadata);
       }
     } catch (error) {
-      console.error('[Spotcogs] Error replacing embed:', error);
+      console.error('[Discotify] Error replacing embed:', error);
     }
   }
 
@@ -344,7 +344,7 @@ class Spotcogs {
       year: null
     };
 
-    console.log('[Spotcogs] Extracting metadata...');
+    console.log('[Discotify] Extracting metadata...');
 
     // Method 1: Try profile_title structure (older Discogs layout)
     const profileTitle = document.querySelector('#profile_title');
@@ -409,7 +409,7 @@ class Spotcogs {
       metadata.year = yearLink.textContent.trim();
     }
 
-    console.log('[Spotcogs] Extracted metadata:', metadata);
+    console.log('[Discotify] Extracted metadata:', metadata);
     return metadata;
   }
 
@@ -422,7 +422,7 @@ class Spotcogs {
         },
         (response) => {
           if (chrome.runtime.lastError) {
-            console.error('[Spotcogs] Message error:', chrome.runtime.lastError);
+            console.error('[Discotify] Message error:', chrome.runtime.lastError);
             resolve(null);
           } else {
             resolve(response);
@@ -434,14 +434,14 @@ class Spotcogs {
 
   createSpotifyContainer(spotifyData) {
     const container = document.createElement('div');
-    container.className = 'spotcogs-player-container';
+    container.className = 'discotify-player-container';
 
     const spotifyId = spotifyData.uri.split(':').pop();
     const embedType = spotifyData.type || 'album';
 
     // Add header
     const header = document.createElement('div');
-    header.className = 'spotcogs-header';
+    header.className = 'discotify-header';
     header.innerHTML = `
       <svg viewBox="0 0 24 24" width="20" height="20" fill="#1DB954">
         <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
@@ -456,7 +456,7 @@ class Spotcogs {
     iframe.frameBorder = '0';
     iframe.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
     iframe.loading = 'lazy';
-    iframe.className = 'spotcogs-spotify-embed';
+    iframe.className = 'discotify-spotify-embed';
 
     container.appendChild(header);
     container.appendChild(iframe);
@@ -466,8 +466,8 @@ class Spotcogs {
 
   createSpotifyPlayer(originalEmbed, spotifyData) {
     // Final check to prevent duplicates
-    if (document.querySelector('.spotcogs-player-container')) {
-      console.log('[Spotcogs] Player already exists, skipping replace');
+    if (document.querySelector('.discotify-player-container')) {
+      console.log('[Discotify] Player already exists, skipping replace');
       return;
     }
 
@@ -475,12 +475,12 @@ class Spotcogs {
 
     // Replace the original embed
     originalEmbed.parentNode.replaceChild(container, originalEmbed);
-    console.log('[Spotcogs] Successfully replaced Apple Music embed with Spotify player');
+    console.log('[Discotify] Successfully replaced Apple Music embed with Spotify player');
   }
 
   showNoMatchMessage(originalEmbed, metadata) {
     const container = document.createElement('div');
-    container.className = 'spotcogs-no-match';
+    container.className = 'discotify-no-match';
 
     // Escape user-provided content to prevent XSS
     const safeArtist = this.escapeHtml(metadata.artist);
@@ -488,16 +488,16 @@ class Spotcogs {
     const searchQuery = encodeURIComponent(`${metadata.artist || ''} ${metadata.album || ''}`);
 
     container.innerHTML = `
-      <div class="spotcogs-no-match-content">
+      <div class="discotify-no-match-content">
         <svg viewBox="0 0 24 24" width="32" height="32" fill="#1DB954">
           <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
         </svg>
         <p>No Spotify match found for:</p>
-        <p class="spotcogs-search-term">${safeArtist} - ${safeAlbum}</p>
+        <p class="discotify-search-term">${safeArtist} - ${safeAlbum}</p>
         <a href="https://open.spotify.com/search/${searchQuery}"
            target="_blank"
            rel="noopener noreferrer"
-           class="spotcogs-search-link">
+           class="discotify-search-link">
           Search on Spotify
         </a>
       </div>
@@ -510,7 +510,7 @@ class Spotcogs {
     this.domObserver = new MutationObserver((mutations) => {
       // Skip if already processed, currently processing, or player exists
       if (this.processed || this.processing) return;
-      if (document.querySelector('.spotcogs-player-container')) return;
+      if (document.querySelector('.discotify-player-container')) return;
 
       let shouldProcess = false;
 
@@ -558,7 +558,7 @@ class Spotcogs {
 
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new Spotcogs());
+  document.addEventListener('DOMContentLoaded', () => new Discotify());
 } else {
-  new Spotcogs();
+  new Discotify();
 }

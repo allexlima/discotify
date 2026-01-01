@@ -1,12 +1,12 @@
-# 🎵 Spotcogs
+# 🎵 Discotify
 
 > Replace Apple Music player with Spotify on Discogs
 
 <p align="center">
-  <img src="icons/icon128.png" alt="Spotcogs Logo" width="128" height="128">
+  <img src="icons/icon128.png" alt="Discotify Logo" width="128" height="128">
 </p>
 
-Spotcogs is a Chrome extension that automatically detects Apple Music embeds on [Discogs](https://www.discogs.com) release pages and replaces them with Spotify players, giving you seamless access to your preferred streaming service.
+Discotify is a Chrome extension that automatically detects Apple Music embeds on [Discogs](https://www.discogs.com) release pages and replaces them with Spotify players, giving you seamless access to your preferred streaming service.
 
 ## ✨ Features
 
@@ -24,8 +24,8 @@ Spotcogs is a Chrome extension that automatically detects Apple Music embeds on 
 
 1. **Clone or download this repository**
    ```bash
-   git clone https://github.com/yourusername/spotcogs.git
-   cd spotcogs
+   git clone https://github.com/yourusername/discotify.git
+   cd discotify
    ```
 
 2. **Set up Spotify API credentials** (optional but recommended)
@@ -44,11 +44,11 @@ Spotcogs is a Chrome extension that automatically detects Apple Music embeds on 
    - Open Chrome and navigate to `chrome://extensions/`
    - Enable **Developer mode** (toggle in top right)
    - Click **Load unpacked**
-   - Select the `spotcogs` folder
+   - Select the `discotify` folder
 
 5. **Pin the extension** (optional)
    - Click the puzzle piece icon in Chrome toolbar
-   - Pin Spotcogs for easy access
+   - Pin Discotify for easy access
 
 ## 🔧 Configuration
 
@@ -58,15 +58,15 @@ The extension uses Spotify's API to search for albums. Setup takes ~2 minutes:
 
 1. **Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)**
 2. **Log in** with your Spotify account (free account works fine)
-3. **Click the Spotcogs extension icon** to see your Redirect URI
+3. **Click the Discotify extension icon** to see your Redirect URI
 4. **Click "Create App"** in Spotify Dashboard and fill in:
-   - App name: `Spotcogs`
+   - App name: `Discotify`
    - App description: `Chrome extension for Discogs`
    - Redirect URI: Copy from the extension popup (looks like `https://xxx.chromiumapp.org/`)
    - Check "Web API" under APIs
 5. **Click "Save"** and then **"Settings"**
 6. **Copy your Client ID and Client Secret**
-7. **Paste your credentials** in the Spotcogs popup and click "Save & Connect"
+7. **Paste your credentials** in the Discotify popup and click "Save & Connect"
 
 > **Note**: Your credentials are stored locally in your browser and never sent anywhere except Spotify's API.
 
@@ -84,7 +84,7 @@ Spotify requires authentication for all search requests. The Client Credentials 
 1. **Navigate to any Discogs release page** that has an Apple Music embed
    - Example: `https://www.discogs.com/release/123456`
 
-2. **Spotcogs will automatically**:
+2. **Discotify will automatically**:
    - Detect the Apple Music player
    - Search for the album on Spotify
    - Replace the player with a Spotify embed
@@ -93,7 +93,7 @@ Spotify requires authentication for all search requests. The Client Credentials 
 
 ### Extension Popup
 
-Click the Spotcogs icon in your Chrome toolbar to:
+Click the Discotify icon in your Chrome toolbar to:
 - Enable/disable the extension
 - Connect/disconnect your Spotify account
 - View connection status
@@ -101,7 +101,7 @@ Click the Spotcogs icon in your Chrome toolbar to:
 ## 📁 Project Structure
 
 ```
-spotcogs/
+discotify/
 ├── manifest.json           # Chrome extension manifest
 ├── package.json           # Node.js package file
 ├── README.md              # This file
@@ -149,13 +149,13 @@ npm run format
 
 1. Edit files in the `src/` directory
 2. Go to `chrome://extensions/`
-3. Click the refresh icon on the Spotcogs extension
+3. Click the refresh icon on the Discotify extension
 4. Refresh the Discogs page to see changes
 
 ### Debugging
 
-- **Content Script**: Open DevTools on a Discogs page, check Console for `[Spotcogs]` messages
-- **Background Script**: Go to `chrome://extensions/`, click "Service Worker" under Spotcogs
+- **Content Script**: Open DevTools on a Discogs page, check Console for `[Discotify]` messages
+- **Background Script**: Go to `chrome://extensions/`, click "Service Worker" under Discotify
 - **Popup**: Right-click the extension icon → "Inspect Popup"
 
 ## 🤝 Contributing

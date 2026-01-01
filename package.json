@@ -1,7 +1,7 @@
 {
-  "name": "spotcogs",
+  "name": "discotify",
   "version": "1.0.0",
-  "description": "Chrome extension to replace Apple Music player with Spotify on Discogs",
+  "description": "Chrome extension to replace Apple Music with Spotify player on Discogs",
   "private": true,
   "scripts": {
     "lint": "eslint src/",
@@ -17,6 +17,7 @@
   "license": "MIT",
   "devDependencies": {
     "eslint": "^8.57.0",
-    "prettier": "^3.2.5"
+    "prettier": "^3.2.5",
+    "sharp": "^0.34.5"
   }
 }

@@ -1,26 +1,56 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
   <defs>
-    <linearGradient id="spotcogs-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#1DB954"/>
-      <stop offset="100%" style="stop-color:#1ed760"/>
+    <!-- Gradient for the vinyl record -->
+    <linearGradient id="vinylGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2a2a2a"/>
+      <stop offset="50%" style="stop-color:#1a1a1a"/>
+      <stop offset="100%" style="stop-color:#0d0d0d"/>
     </linearGradient>
+    <!-- Spotify green gradient -->
+    <linearGradient id="spotifyGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1ed760"/>
+      <stop offset="100%" style="stop-color:#1DB954"/>
+    </linearGradient>
+    <!-- Glow effect -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
   </defs>
 
-  <!-- Background circle -->
-  <circle cx="64" cy="64" r="60" fill="#121212"/>
+  <!-- Outer vinyl record -->
+  <circle cx="64" cy="64" r="60" fill="url(#vinylGradient)" stroke="#333" stroke-width="1"/>
 
-  <!-- Spotify-inspired waves -->
-  <g fill="none" stroke="url(#spotcogs-grad)" stroke-linecap="round" stroke-width="8">
+  <!-- Vinyl grooves (subtle circles) -->
+  <circle cx="64" cy="64" r="52" fill="none" stroke="#252525" stroke-width="0.5"/>
+  <circle cx="64" cy="64" r="46" fill="none" stroke="#222" stroke-width="0.5"/>
+  <circle cx="64" cy="64" r="40" fill="none" stroke="#252525" stroke-width="0.5"/>
+  <circle cx="64" cy="64" r="34" fill="none" stroke="#222" stroke-width="0.5"/>
+
+  <!-- Center label area (green, like Spotify) -->
+  <circle cx="64" cy="64" r="26" fill="url(#spotifyGreen)"/>
+  <circle cx="64" cy="64" r="24" fill="url(#spotifyGreen)" opacity="0.9"/>
+
+  <!-- Spotify-style sound waves on the label -->
+  <g filter="url(#glow)">
     <!-- Top wave -->
-    <path d="M32 48c20-8 44-8 64 0" opacity="0.9"/>
+    <path d="M 44 54 Q 54 50, 64 54 Q 74 58, 84 54"
+          fill="none" stroke="#000" stroke-width="3.5" stroke-linecap="round" opacity="0.8"/>
     <!-- Middle wave -->
-    <path d="M38 68c16-6 36-6 52 0"/>
+    <path d="M 48 64 Q 56 60, 64 64 Q 72 68, 80 64"
+          fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" opacity="0.8"/>
     <!-- Bottom wave -->
-    <path d="M44 88c12-5 28-5 40 0" opacity="0.8"/>
+    <path d="M 52 74 Q 58 71, 64 74 Q 70 77, 76 74"
+          fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
   </g>
 
-  <!-- Gear/cog accent (small) -->
-  <g transform="translate(88, 88) scale(0.35)" fill="#1DB954">
-    <path d="M20 8.5V4h-4v4.5a8 8 0 00-2.3.9L11 6.7 8 9.7l2.7 2.7a8 8 0 00-.9 2.3H4v4h5.5a8 8 0 00.9 2.3L8 23.7l3 3 2.7-2.7a8 8 0 002.3.9V30h4v-5.1a8 8 0 002.3-.9l2.7 2.7 3-3-2.7-2.7a8 8 0 00.9-2.3H30v-4h-4.5a8 8 0 00-.9-2.3l2.7-2.7-3-3-2.7 2.7a8 8 0 00-2.3-.9V4h-4v4.5zM18 24a6 6 0 110-12 6 6 0 010 12z"/>
-  </g>
+  <!-- Spindle hole -->
+  <circle cx="64" cy="64" r="4" fill="#1a1a1a"/>
+  <circle cx="64" cy="64" r="2.5" fill="#0d0d0d"/>
+
+  <!-- Vinyl shine/reflection -->
+  <ellipse cx="45" cy="45" rx="15" ry="8" fill="white" opacity="0.03" transform="rotate(-45 45 45)"/>
 </svg>

@@ -1,5 +1,5 @@
 /**
- * Spotcogs Popup Script
+ * Discotify Popup Script
  * Handles extension settings and Spotify API configuration
  */
 

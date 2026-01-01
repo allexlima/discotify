@@ -1,5 +1,5 @@
 /**
- * Spotcogs Background Service Worker
+ * Discotify Background Service Worker
  * Handles Spotify API authentication and album search
  */
 
@@ -34,7 +34,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     handleSpotifySearch(message.payload)
       .then(sendResponse)
       .catch((error) => {
-        console.error('[Spotcogs] Search error:', error);
+        console.error('[Discotify] Search error:', error);
         sendResponse(null);
       });
     return true;
@@ -52,7 +52,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     loadCredentialsAndAuthenticate()
       .then((success) => sendResponse({ success }))
       .catch((error) => {
-        console.error('[Spotcogs] Auth error:', error);
+        console.error('[Discotify] Auth error:', error);
         sendResponse({ success: false, error: error.message });
       });
     return true;
@@ -72,7 +72,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 // =============================================================================
 
 async function initialize() {
-  console.log('[Spotcogs] Initializing background service...');
+  console.log('[Discotify] Initializing background service...');
 
   // Load credentials from storage
   const stored = await chrome.storage.local.get([
@@ -89,16 +89,16 @@ async function initialize() {
   if (stored.spotifyToken && stored.spotifyTokenExpires > Date.now()) {
     accessToken = stored.spotifyToken;
     tokenExpiresAt = stored.spotifyTokenExpires;
-    console.log('[Spotcogs] Restored Spotify token from storage');
+    console.log('[Discotify] Restored Spotify token from storage');
     return;
   }
 
   // If we have credentials but no valid token, get a new one
   if (clientId && clientSecret) {
-    console.log('[Spotcogs] Getting new token...');
+    console.log('[Discotify] Getting new token...');
     await getClientCredentialsToken();
   } else {
-    console.log('[Spotcogs] No credentials configured yet');
+    console.log('[Discotify] No credentials configured yet');
   }
 }
 
@@ -129,7 +129,7 @@ async function loadCredentialsAndAuthenticate() {
  */
 async function getClientCredentialsToken() {
   if (!clientId || !clientSecret) {
-    console.error('[Spotcogs] No credentials available');
+    console.error('[Discotify] No credentials available');
     return false;
   }
 
@@ -147,7 +147,7 @@ async function getClientCredentialsToken() {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('[Spotcogs] Token request failed:', response.status, errorText);
+      console.error('[Discotify] Token request failed:', response.status, errorText);
       throw new Error(`Authentication failed (${response.status})`);
     }
 
@@ -162,10 +162,10 @@ async function getClientCredentialsToken() {
       spotifyTokenExpires: tokenExpiresAt
     });
 
-    console.log('[Spotcogs] Successfully obtained Spotify token');
+    console.log('[Discotify] Successfully obtained Spotify token');
     return true;
   } catch (error) {
-    console.error('[Spotcogs] Failed to get token:', error);
+    console.error('[Discotify] Failed to get token:', error);
     throw error;
   }
 }
@@ -192,19 +192,19 @@ async function ensureValidToken() {
  * Search Spotify for an album matching the given metadata
  */
 async function handleSpotifySearch(metadata) {
-  console.log('[Spotcogs] Searching for album:', metadata);
+  console.log('[Discotify] Searching for album:', metadata);
 
   const hasToken = await ensureValidToken();
 
   if (!hasToken) {
-    console.log('[Spotcogs] No valid token available');
+    console.log('[Discotify] No valid token available');
     return null;
   }
 
   const { artist, album } = metadata;
 
   if (!artist && !album) {
-    console.log('[Spotcogs] No search terms provided');
+    console.log('[Discotify] No search terms provided');
     return null;
   }
 
@@ -227,12 +227,12 @@ async function handleSpotifySearch(metadata) {
   for (const strategy of strategies) {
     const result = await strategy();
     if (result) {
-      console.log('[Spotcogs] Found album:', result.name, 'by', result.artist);
+      console.log('[Discotify] Found album:', result.name, 'by', result.artist);
       return result;
     }
   }
 
-  console.log('[Spotcogs] No album match found');
+  console.log('[Discotify] No album match found');
   return null;
 }
 
@@ -268,7 +268,7 @@ async function searchAlbums(query, expectedArtist, expectedAlbum) {
     // Only search for albums
     const url = `${SPOTIFY_API_URL}/search?q=${encodeURIComponent(query)}&type=album&limit=20&market=US`;
 
-    console.log('[Spotcogs] Query:', query);
+    console.log('[Discotify] Query:', query);
 
     const response = await fetch(url, {
       headers: { 'Authorization': `Bearer ${accessToken}` }
@@ -283,7 +283,7 @@ async function searchAlbums(query, expectedArtist, expectedAlbum) {
           return searchAlbums(query, expectedArtist, expectedAlbum);
         }
       }
-      console.error('[Spotcogs] Search failed:', response.status);
+      console.error('[Discotify] Search failed:', response.status);
       return null;
     }
 
@@ -297,7 +297,7 @@ async function searchAlbums(query, expectedArtist, expectedAlbum) {
     // Find the best matching album
     return findBestAlbumMatch(albums, expectedArtist, expectedAlbum);
   } catch (error) {
-    console.error('[Spotcogs] Search error:', error);
+    console.error('[Discotify] Search error:', error);
     return null;
   }
 }
@@ -359,7 +359,7 @@ function findBestAlbumMatch(albums, expectedArtist, expectedAlbum) {
   scored.sort((a, b) => b.score - a.score);
 
   // Log top matches for debugging
-  console.log('[Spotcogs] Top matches:', scored.slice(0, 3).map(s =>
+  console.log('[Discotify] Top matches:', scored.slice(0, 3).map(s =>
     `${s.album.name} by ${s.album.artists[0]?.name} (score: ${s.score})`
   ));
 
@@ -429,10 +429,10 @@ function getBigrams(str) {
 
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === 'install') {
-    console.log('[Spotcogs] Extension installed');
+    console.log('[Discotify] Extension installed');
     chrome.storage.sync.set({ enabled: true });
   } else if (details.reason === 'update') {
-    console.log('[Spotcogs] Extension updated to version', chrome.runtime.getManifest().version);
+    console.log('[Discotify] Extension updated to version', chrome.runtime.getManifest().version);
   }
 });
 
@@ -440,7 +440,7 @@ chrome.runtime.onInstalled.addListener((details) => {
 chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName === 'local') {
     if (changes.spotifyClientId || changes.spotifyClientSecret) {
-      console.log('[Spotcogs] Credentials changed, will re-authenticate on next request');
+      console.log('[Discotify] Credentials changed, will re-authenticate on next request');
       // Clear token so it will be refreshed
       accessToken = null;
       tokenExpiresAt = null;
@@ -459,7 +459,7 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 // Refresh token periodically (every 50 minutes)
 setInterval(async () => {
   if (clientId && clientSecret && accessToken) {
-    console.log('[Spotcogs] Refreshing token...');
+    console.log('[Discotify] Refreshing token...');
     await getClientCredentialsToken();
   }
 }, 50 * 60 * 1000);
