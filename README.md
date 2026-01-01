@@ -1,6 +1,7 @@
 # 🎵 Discotify
 
-[![Chrome Extension](https://img.shields.io/badge/Chrome-Extension-4285F4?logo=googlechrome&logoColor=white)](https://chrome.google.com)
+[![Chrome](https://img.shields.io/badge/Chrome-supported-4285F4?logo=googlechrome&logoColor=white)](https://chrome.google.com)
+[![Edge](https://img.shields.io/badge/Edge-supported-0078D7?logo=microsoftedge&logoColor=white)](https://www.microsoft.com/edge)
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-34A853)](https://developer.chrome.com/docs/extensions/mv3/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -25,7 +26,7 @@
 | ⚡ **SPA Support**    | Works with Discogs' client-side navigation                  |
 | 🔒 **Privacy First**  | Credentials stored locally, never shared                    |
 
-*Coming soon*
+---
 
 ## 🚀 Quick Start
 
@@ -118,12 +119,7 @@ discotify/
 
 ## 🛠️ Development
 
-### Prerequisites
-
-- Node.js 18+
-- Chrome or Chromium browser
-
-### Setup
+### Setup (optional, for linting)
 
 ```bash
 npm install          # Install dev dependencies
@@ -166,5 +162,5 @@ This extension is **not affiliated with** Spotify, Apple, or Discogs. All tradem
 ---
 
 <p align="center">
-  Vibecoded by [Allex](https://github.com/allexlima) with 💚 for vinyl lovers
+  Vibecoded by <a href="https://github.com/allexlima">Allex</a> with 💚 for vinyl lovers
 </p>
