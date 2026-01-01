@@ -1,22 +1,23 @@
 /**
  * Discotify Popup Styles
- * Modern, clean UI for the extension popup
+ * Compact, vinyl-inspired design
  */
 
 :root {
-  --bg-primary: #121212;
-  --bg-secondary: #1a1a1a;
-  --bg-tertiary: #242424;
-  --bg-hover: #2a2a2a;
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #141414;
+  --bg-tertiary: #1e1e1e;
+  --bg-hover: #282828;
   --spotify-green: #1DB954;
-  --spotify-green-hover: #1ed760;
+  --spotify-green-light: #1ed760;
   --text-primary: #ffffff;
-  --text-secondary: #b3b3b3;
-  --text-muted: #727272;
-  --border-color: rgba(255, 255, 255, 0.1);
-  --error-color: #e74c3c;
-  --warning-color: #f39c12;
-  --success-color: #1DB954;
+  --text-secondary: #a7a7a7;
+  --text-muted: #666;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --success: #1DB954;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --radius: 8px;
 }
 
 * {
@@ -26,80 +27,105 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 13px;
   background: var(--bg-primary);
   color: var(--text-primary);
-  width: 360px;
-  max-height: 580px;
-  overflow-y: auto;
-}
-
-/* Scrollbar */
-body::-webkit-scrollbar {
-  width: 6px;
-}
-
-body::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-body::-webkit-scrollbar-thumb {
-  background: var(--bg-tertiary);
-  border-radius: 3px;
-}
-
-body::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
-}
-
-.popup-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100%;
+  width: 340px;
 }
 
 /* ============================================
    Header
    ============================================ */
-
 .popup-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
-  background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+  padding: 14px 16px;
+  background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
 }
 
 .logo-container {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
-.logo {
-  filter: drop-shadow(0 2px 8px rgba(29, 185, 84, 0.3));
+.logo-vinyl {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1a1a1a, #0d0d0d);
+  box-shadow: inset 0 0 0 3px rgba(255,255,255,0.03);
+  animation: spin 4s linear infinite;
+  animation-play-state: paused;
+}
+
+.popup-header:hover .logo-vinyl {
+  animation-play-state: running;
+}
+
+.vinyl-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--spotify-green);
+  box-shadow: 0 0 8px rgba(29, 185, 84, 0.4);
+}
+
+.vinyl-hole {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--bg-primary);
+}
+
+.header-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .header-text h1 {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
-  color: var(--text-primary);
   letter-spacing: -0.3px;
-  line-height: 1.2;
 }
 
-.tagline {
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-muted);
+}
+
+.status-dot.connected { background: var(--success); box-shadow: 0 0 6px rgba(29, 185, 84, 0.5); }
+.status-dot.checking { background: var(--warning); animation: pulse 1.5s infinite; }
+.status-dot.error { background: var(--error); }
+
+.status-text {
   font-size: 11px;
   color: var(--text-muted);
-  font-weight: 400;
 }
 
-/* Toggle Switch */
+.status-text.connected { color: var(--success); }
+.status-text.error { color: var(--error); }
+
+/* Toggle */
 .toggle-switch {
   position: relative;
-  width: 42px;
-  height: 24px;
+  width: 40px;
+  height: 22px;
   cursor: pointer;
 }
 
@@ -111,26 +137,22 @@ body::-webkit-scrollbar-thumb:hover {
 
 .toggle-slider {
   position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: var(--bg-tertiary);
-  transition: 0.25s ease;
-  border-radius: 24px;
+  inset: 0;
+  background: var(--bg-tertiary);
+  border-radius: 22px;
+  transition: 0.2s;
 }
 
 .toggle-slider::before {
-  position: absolute;
   content: "";
-  height: 18px;
-  width: 18px;
+  position: absolute;
+  width: 16px;
+  height: 16px;
   left: 3px;
   bottom: 3px;
-  background-color: var(--text-secondary);
-  transition: 0.25s ease;
+  background: var(--text-muted);
   border-radius: 50%;
+  transition: 0.2s;
 }
 
 .toggle-switch input:checked + .toggle-slider {
@@ -145,279 +167,167 @@ body::-webkit-scrollbar-thumb:hover {
 /* ============================================
    Main Content
    ============================================ */
-
 .popup-main {
-  padding: 16px 20px;
-  flex: 1;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-}
-
-/* Status Card */
-.status-card {
-  display: flex;
-  align-items: center;
   gap: 12px;
-  padding: 12px 14px;
-  background: var(--bg-secondary);
-  border-radius: 10px;
-  border: 1px solid var(--border-color);
 }
 
-.status-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: var(--bg-tertiary);
-  border-radius: 50%;
-}
-
-.status-indicator {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  transition: all 0.3s ease;
-}
-
-.status-indicator.connected {
-  background: var(--success-color);
-  box-shadow: 0 0 12px rgba(29, 185, 84, 0.5);
-}
-
-.status-indicator.checking {
-  background: var(--warning-color);
-  animation: pulse 1.5s ease-in-out infinite;
-}
-
-.status-indicator.error,
-.status-indicator.not-connected {
-  background: var(--text-muted);
-}
-
-.status-text {
-  flex: 1;
-}
-
-.status-label {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-secondary);
-}
-
-.status-card.connected .status-label {
-  color: var(--success-color);
-}
-
-.status-card.error .status-label {
-  color: var(--error-color);
-}
-
-/* ============================================
-   Sections
-   ============================================ */
-
-.section {
+/* Credentials */
+.credentials-grid {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.section-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.section-title svg {
-  opacity: 0.7;
-}
-
-.section-hint {
-  font-size: 11px;
-  color: var(--text-muted);
-  margin-top: -6px;
-}
-
-.badge {
-  font-size: 9px;
-  font-weight: 600;
-  padding: 2px 6px;
-  background: rgba(29, 185, 84, 0.15);
-  color: var(--spotify-green);
-  border-radius: 4px;
-  text-transform: uppercase;
-}
-
-/* ============================================
-   Input Fields
-   ============================================ */
-
 .input-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .input-group label {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   color: var(--text-secondary);
 }
 
-.input-group input {
+.input-wrapper {
+  position: relative;
+}
+
+.input-wrapper input {
   width: 100%;
-  padding: 12px 14px;
+  padding: 10px 12px;
+  padding-right: 36px;
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: var(--radius);
   color: var(--text-primary);
-  font-size: 13px;
-  font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
-  transition: all 0.2s ease;
+  font-size: 12px;
+  font-family: 'SF Mono', Monaco, monospace;
+  transition: 0.15s;
 }
 
-.input-group input:focus {
+.input-wrapper input:focus {
   outline: none;
   border-color: var(--spotify-green);
-  background: var(--bg-tertiary);
+  box-shadow: 0 0 0 2px rgba(29, 185, 84, 0.2);
 }
 
-.input-group input::placeholder {
+.input-wrapper input::placeholder {
   color: var(--text-muted);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-}
-
-.input-with-action {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.input-with-action input {
-  padding-right: 44px;
+  font-family: inherit;
 }
 
 .input-action-btn {
   position: absolute;
-  right: 8px;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
   background: none;
   border: none;
   color: var(--text-muted);
   cursor: pointer;
-  padding: 6px;
+  padding: 4px;
   display: flex;
-  align-items: center;
-  justify-content: center;
   border-radius: 4px;
-  transition: all 0.2s ease;
+  transition: 0.15s;
 }
 
 .input-action-btn:hover {
-  color: var(--text-primary);
+  color: var(--text-secondary);
   background: var(--bg-hover);
 }
 
-.input-action-btn.active {
-  color: var(--spotify-green);
-}
-
-/* ============================================
-   Copy Field
-   ============================================ */
-
-.copy-field {
+/* URI Row */
+.uri-row {
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 8px 10px;
   background: var(--bg-secondary);
+  border-radius: var(--radius);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 10px 12px;
-  transition: all 0.2s ease;
 }
 
-.copy-field:hover {
-  border-color: var(--spotify-green);
+.uri-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.copy-field {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
 }
 
 .copy-field code {
   flex: 1;
-  font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
-  font-size: 11px;
+  font-family: 'SF Mono', Monaco, monospace;
+  font-size: 10px;
   color: var(--spotify-green);
-  word-break: break-all;
-  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .copy-btn {
   background: var(--bg-tertiary);
   border: none;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   cursor: pointer;
-  padding: 8px;
+  padding: 5px 8px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  transition: all 0.2s ease;
+  gap: 4px;
+  font-size: 10px;
+  transition: 0.15s;
   flex-shrink: 0;
 }
 
 .copy-btn:hover {
-  color: var(--text-primary);
   background: var(--bg-hover);
+  color: var(--text-secondary);
 }
 
 .copy-btn.copied {
   color: var(--spotify-green);
-  background: rgba(29, 185, 84, 0.15);
 }
 
-/* ============================================
-   Help Section
-   ============================================ */
-
+/* Help */
 .help-section {
   background: var(--bg-secondary);
-  border-radius: 8px;
-  overflow: hidden;
+  border-radius: var(--radius);
   border: 1px solid var(--border-color);
 }
 
 .help-section summary {
-  padding: 12px 14px;
+  padding: 10px 12px;
   font-size: 12px;
-  font-weight: 500;
   color: var(--text-secondary);
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 8px;
-  transition: all 0.2s ease;
   list-style: none;
 }
 
-.help-section summary::-webkit-details-marker {
-  display: none;
-}
+.help-section summary::-webkit-details-marker { display: none; }
 
 .help-section summary::after {
   content: '';
   margin-left: auto;
-  width: 0;
-  height: 0;
-  border-left: 4px solid transparent;
-  border-right: 4px solid transparent;
+  border: 4px solid transparent;
   border-top: 5px solid var(--text-muted);
-  transition: transform 0.2s ease;
+  transition: 0.15s;
 }
 
 .help-section[open] summary::after {
@@ -425,15 +335,14 @@ body::-webkit-scrollbar-thumb:hover {
 }
 
 .help-section summary:hover {
-  background: var(--bg-hover);
   color: var(--text-primary);
 }
 
 .help-steps {
-  padding: 0 14px 14px 36px;
-  font-size: 12px;
+  padding: 0 12px 10px 32px;
+  font-size: 11px;
   color: var(--text-secondary);
-  line-height: 1.8;
+  line-height: 1.7;
 }
 
 .help-steps a {
@@ -445,22 +354,16 @@ body::-webkit-scrollbar-thumb:hover {
   text-decoration: underline;
 }
 
-.help-steps strong {
-  color: var(--text-primary);
-  font-weight: 500;
-}
-
 /* ============================================
    Footer
    ============================================ */
-
 .popup-footer {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 16px 20px 20px;
+  padding: 12px 16px 14px;
   background: var(--bg-secondary);
   border-top: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .btn {
@@ -469,69 +372,67 @@ body::-webkit-scrollbar-thumb:hover {
   justify-content: center;
   gap: 8px;
   width: 100%;
-  padding: 14px 20px;
+  padding: 11px 16px;
   border: none;
-  border-radius: 30px;
-  font-size: 14px;
+  border-radius: 20px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: 0.2s;
 }
 
 .btn-primary {
   background: var(--spotify-green);
-  color: #000000;
+  color: #000;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: var(--spotify-green-hover);
+  background: var(--spotify-green-light);
   transform: translateY(-1px);
-  box-shadow: 0 4px 20px rgba(29, 185, 84, 0.35);
-}
-
-.btn-primary:active:not(:disabled) {
-  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(29, 185, 84, 0.3);
 }
 
 .btn-primary:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
 }
 
-.btn-secondary {
-  background: transparent;
+.footer-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.footer-link {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.footer-link:hover {
   color: var(--text-secondary);
-  padding: 10px 20px;
-  border: 1px solid var(--border-color);
 }
 
-.btn-secondary:hover {
-  background: var(--bg-hover);
-  color: var(--text-primary);
-  border-color: var(--text-muted);
+.footer-dot {
+  opacity: 0.5;
 }
 
 /* ============================================
    Animations
    ============================================ */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
 
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.popup-container {
-  animation: fadeIn 0.2s ease;
-}
-
-/* Spinner animation for loading states */
-@keyframes spin {
-  to { transform: rotate(360deg); }
 }
 
 .spinner {
