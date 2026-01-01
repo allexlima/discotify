@@ -25,6 +25,8 @@ class Spotcogs {
       'iframe[src*="music.apple.com"]'
     ];
     this.processed = false;
+    this.processing = false; // Lock to prevent concurrent processing
+    this.currentUrl = window.location.href;
     this.init();
   }
 
@@ -45,6 +47,45 @@ class Spotcogs {
 
     // Also watch for dynamically added content
     this.observeDOM();
+
+    // Watch for SPA navigation (URL changes without page reload)
+    this.observeUrlChanges();
+  }
+
+  observeUrlChanges() {
+    // Check for URL changes periodically (handles pushState/replaceState)
+    setInterval(() => {
+      if (window.location.href !== this.currentUrl) {
+        console.log('[Spotcogs] URL changed, resetting...');
+        this.handleNavigation();
+      }
+    }, 500);
+
+    // Also listen for popstate (back/forward navigation)
+    window.addEventListener('popstate', () => {
+      console.log('[Spotcogs] Popstate detected, resetting...');
+      this.handleNavigation();
+    });
+  }
+
+  handleNavigation() {
+    this.currentUrl = window.location.href;
+    this.processed = false;
+    this.processing = false;
+
+    // Remove existing Spotify players from the previous page
+    this.cleanupPlayers();
+
+    // Process the new page after a delay for content to load
+    setTimeout(() => this.processPage(), 1000);
+  }
+
+  cleanupPlayers() {
+    const existingPlayers = document.querySelectorAll('.spotcogs-player-container, .spotcogs-no-match');
+    existingPlayers.forEach(player => {
+      console.log('[Spotcogs] Removing old player');
+      player.remove();
+    });
   }
 
   async getSettings() {
@@ -56,13 +97,17 @@ class Spotcogs {
   }
 
   processPage() {
-    if (this.processed) return;
+    // Check if already processed or currently processing
+    if (this.processed || this.processing) return;
 
     // Check if we already have a Spotify player on the page
     if (document.querySelector('.spotcogs-player-container')) {
       this.processed = true;
       return;
     }
+
+    // Set processing lock immediately
+    this.processing = true;
 
     // First, try to find Apple Music embeds with selectors
     let embeds = this.findAppleMusicEmbeds();
@@ -82,19 +127,19 @@ class Spotcogs {
       // Still try to add Spotify player if we're on a release page
       if (this.isReleasePage()) {
         console.log('[Spotcogs] This is a release page, adding Spotify player');
-        // Mark as processed immediately to prevent duplicate calls
         this.processed = true;
         this.addSpotifyPlayerToPage();
+      } else {
+        this.processing = false; // Release lock if not processing
       }
       return;
     }
 
-    // Mark as processed before async operations
+    // Mark as processed
     this.processed = true;
 
-    embeds.forEach((embed) => {
-      this.replaceEmbed(embed);
-    });
+    // Only process the FIRST embed to avoid duplicates
+    this.replaceEmbed(embeds[0]);
   }
 
   findAppleMusicEmbeds() {
@@ -211,6 +256,12 @@ class Spotcogs {
   }
 
   insertSpotifyPlayer(location, spotifyData) {
+    // Final check to prevent duplicates
+    if (document.querySelector('.spotcogs-player-container')) {
+      console.log('[Spotcogs] Player already exists, skipping insert');
+      return;
+    }
+
     const container = this.createSpotifyContainer(spotifyData);
 
     if (location.position === 'prepend') {
@@ -377,6 +428,12 @@ class Spotcogs {
   }
 
   createSpotifyPlayer(originalEmbed, spotifyData) {
+    // Final check to prevent duplicates
+    if (document.querySelector('.spotcogs-player-container')) {
+      console.log('[Spotcogs] Player already exists, skipping replace');
+      return;
+    }
+
     const container = this.createSpotifyContainer(spotifyData);
 
     // Replace the original embed
@@ -407,7 +464,9 @@ class Spotcogs {
 
   observeDOM() {
     const observer = new MutationObserver((mutations) => {
-      if (this.processed) return;
+      // Skip if already processed, currently processing, or player exists
+      if (this.processed || this.processing) return;
+      if (document.querySelector('.spotcogs-player-container')) return;
 
       let shouldProcess = false;
 
