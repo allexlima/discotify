@@ -84,3 +84,5 @@ If you have questions about this privacy policy, please open an issue on our [Gi
 ## Open Source
 
 Discotify is open source. You can review the complete source code to verify our privacy practices.
+
+

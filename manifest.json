@@ -4,9 +4,7 @@
   "version": "1.0.0",
   "description": "Replace Apple Music with Spotify player on Discogs",
   "permissions": [
-    "storage",
-    "activeTab",
-    "identity"
+    "storage"
   ],
   "host_permissions": [
     "https://www.discogs.com/*",
