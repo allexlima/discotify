@@ -33,3 +33,11 @@ npm-debug.log*
 *.pem
 *.crx
 *.zip
+
+# Extension build artifacts
+dist/
+extension.zip
+
+# Temporary files
+.tmp/
+temp/

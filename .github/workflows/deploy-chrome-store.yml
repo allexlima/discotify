@@ -1,0 +1,138 @@
+name: Deploy to Chrome Web Store
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          TAG=${GITHUB_REF#refs/tags/v}
+          echo "version=$TAG" >> $GITHUB_OUTPUT
+          echo "Deploying version: $TAG"
+
+      - name: Update manifest.json version
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          node -e "
+            const fs = require('fs');
+            const manifest = JSON.parse(fs.readFileSync('manifest.json', 'utf8'));
+            manifest.version = '$VERSION';
+            fs.writeFileSync('manifest.json', JSON.stringify(manifest, null, 2) + '\n');
+          "
+          echo "Updated manifest.json to version $VERSION"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build extension
+        run: npm run build
+
+      - name: Upload to Chrome Web Store
+        env:
+          CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+        run: |
+          # Get access token
+          ACCESS_TOKEN=$(curl -s -X POST \
+            -d "client_id=$CHROME_CLIENT_ID" \
+            -d "client_secret=$CHROME_CLIENT_SECRET" \
+            -d "refresh_token=$CHROME_REFRESH_TOKEN" \
+            -d "grant_type=refresh_token" \
+            https://oauth2.googleapis.com/token | jq -r .access_token)
+
+          if [ -z "$ACCESS_TOKEN" ] || [ "$ACCESS_TOKEN" = "null" ]; then
+            echo "Failed to get access token"
+            exit 1
+          fi
+
+          echo "Successfully obtained access token"
+
+          # Upload extension
+          UPLOAD_RESPONSE=$(curl -s -w "\n%{http_code}" -X PUT \
+            -H "Authorization: Bearer $ACCESS_TOKEN" \
+            -H "x-goog-api-version: 2" \
+            -T dist/extension.zip \
+            "https://www.googleapis.com/upload/chromewebstore/v1.1/items/$CHROME_EXTENSION_ID")
+
+          HTTP_CODE=$(echo "$UPLOAD_RESPONSE" | tail -n1)
+          RESPONSE_BODY=$(echo "$UPLOAD_RESPONSE" | head -n-1)
+
+          echo "Upload HTTP Code: $HTTP_CODE"
+          echo "Upload Response: $RESPONSE_BODY"
+
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "Failed to upload extension"
+            exit 1
+          fi
+
+          # Check for upload errors
+          if echo "$RESPONSE_BODY" | jq -e '.uploadState == "FAILURE"' > /dev/null; then
+            echo "Upload failed with errors:"
+            echo "$RESPONSE_BODY" | jq '.itemError'
+            exit 1
+          fi
+
+          echo "Extension uploaded successfully"
+
+          # Publish extension
+          PUBLISH_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+            -H "Authorization: Bearer $ACCESS_TOKEN" \
+            -H "x-goog-api-version: 2" \
+            -H "Content-Length: 0" \
+            "https://www.googleapis.com/chromewebstore/v1.1/items/$CHROME_EXTENSION_ID/publish")
+
+          HTTP_CODE=$(echo "$PUBLISH_RESPONSE" | tail -n1)
+          RESPONSE_BODY=$(echo "$PUBLISH_RESPONSE" | head -n-1)
+
+          echo "Publish HTTP Code: $HTTP_CODE"
+          echo "Publish Response: $RESPONSE_BODY"
+
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "Failed to publish extension"
+            exit 1
+          fi
+
+          echo "✅ Extension published successfully to Chrome Web Store!"
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ steps.version.outputs.version }}
+          body: |
+            ## Changes in version ${{ steps.version.outputs.version }}
+
+            Extension deployed to Chrome Web Store
+
+            [View on Chrome Web Store](https://chromewebstore.google.com/detail/discotify/${{ secrets.CHROME_EXTENSION_ID }})
+          draft: false
+          prerelease: false
+
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension-${{ steps.version.outputs.version }}
+          path: dist/extension.zip
+          retention-days: 90

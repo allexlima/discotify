@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discotify - Promo Image Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0a0a0a;
+      --bg-card: #141414;
+      --spotify-green: #1DB954;
+      --spotify-green-light: #1ed760;
+      --text-primary: #ffffff;
+      --text-muted: #a7a7a7;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #1a1a2e;
+      color: var(--text-primary);
+      padding: 40px;
+      min-height: 100vh;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 32px;
+      background: linear-gradient(135deg, var(--spotify-green), #fff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: var(--text-muted);
+      margin-bottom: 40px;
+    }
+
+    .image-section {
+      margin-bottom: 60px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding: 0 10px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .section-size {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .canvas-wrapper {
+      background: #2a2a3e;
+      padding: 20px;
+      border-radius: 16px;
+      display: inline-block;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+
+    canvas {
+      display: block;
+      border-radius: 8px;
+    }
+
+    .download-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 16px;
+      padding: 12px 24px;
+      background: var(--spotify-green);
+      color: #000;
+      border: none;
+      border-radius: 30px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .download-btn:hover {
+      background: var(--spotify-green-light);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(29, 185, 84, 0.4);
+    }
+
+    .instructions {
+      background: rgba(29, 185, 84, 0.1);
+      border: 1px solid rgba(29, 185, 84, 0.3);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 40px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .instructions h3 {
+      color: var(--spotify-green);
+      margin-bottom: 10px;
+    }
+
+    .instructions ol {
+      color: var(--text-muted);
+      padding-left: 20px;
+      line-height: 1.8;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎵 Discotify Promo Generator</h1>
+  <p class="subtitle">Chrome Web Store promotional images</p>
+
+  <div class="instructions">
+    <h3>📥 How to download</h3>
+    <ol>
+      <li>Click the "Download PNG" button below each image</li>
+      <li>The image will save as a PNG file (no alpha/transparency)</li>
+      <li>Upload them to the Chrome Web Store</li>
+    </ol>
+  </div>
+
+  <!-- Screenshot 1280x800 -->
+  <div class="image-section">
+    <div class="section-header">
+      <span class="section-title">📸 Screenshot</span>
+      <span class="section-size">1280 × 800</span>
+    </div>
+    <div class="canvas-wrapper">
+      <canvas id="screenshot" width="1280" height="800"></canvas>
+      <button class="download-btn" onclick="downloadCanvas('screenshot', 'discotify-screenshot.png')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+        </svg>
+        Download PNG
+      </button>
+    </div>
+  </div>
+
+  <!-- Small Promo Tile 440x280 -->
+  <div class="image-section">
+    <div class="section-header">
+      <span class="section-title">🏷️ Small Promo Tile</span>
+      <span class="section-size">440 × 280</span>
+    </div>
+    <div class="canvas-wrapper">
+      <canvas id="small-promo" width="440" height="280"></canvas>
+      <button class="download-btn" onclick="downloadCanvas('small-promo', 'discotify-small-promo.png')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+        </svg>
+        Download PNG
+      </button>
+    </div>
+  </div>
+
+  <!-- Marquee Promo Tile 1400x560 -->
+  <div class="image-section">
+    <div class="section-header">
+      <span class="section-title">🎬 Marquee Promo Tile</span>
+      <span class="section-size">1400 × 560</span>
+    </div>
+    <div class="canvas-wrapper">
+      <canvas id="marquee-promo" width="1400" height="560"></canvas>
+      <button class="download-btn" onclick="downloadCanvas('marquee-promo', 'discotify-marquee-promo.png')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+        </svg>
+        Download PNG
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Colors
+    const COLORS = {
+      bgDark: '#0d0d0d',
+      bgCard: '#1a1a1a',
+      spotifyGreen: '#1DB954',
+      spotifyGreenLight: '#1ed760',
+      discogsOrange: '#ff5500',
+      textPrimary: '#ffffff',
+      textMuted: '#888888',
+      vinyl: '#1a1a1a'
+    };
+
+    // Draw vinyl record
+    function drawVinyl(ctx, x, y, radius, rotation = 0) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(rotation);
+
+      // Outer vinyl
+      const vinylGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, radius);
+      vinylGrad.addColorStop(0, '#2a2a2a');
+      vinylGrad.addColorStop(0.3, '#1a1a1a');
+      vinylGrad.addColorStop(1, '#0d0d0d');
+
+      ctx.beginPath();
+      ctx.arc(0, 0, radius, 0, Math.PI * 2);
+      ctx.fillStyle = vinylGrad;
+      ctx.fill();
+
+      // Grooves
+      ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+      ctx.lineWidth = 1;
+      for (let i = 0.5; i < 0.85; i += 0.05) {
+        ctx.beginPath();
+        ctx.arc(0, 0, radius * i, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      // Center label (Spotify green)
+      const labelRadius = radius * 0.38;
+      const labelGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, labelRadius);
+      labelGrad.addColorStop(0, COLORS.spotifyGreenLight);
+      labelGrad.addColorStop(1, COLORS.spotifyGreen);
+
+      ctx.beginPath();
+      ctx.arc(0, 0, labelRadius, 0, Math.PI * 2);
+      ctx.fillStyle = labelGrad;
+      ctx.fill();
+
+      // Sound waves on label
+      ctx.strokeStyle = 'rgba(0,0,0,0.6)';
+      ctx.lineCap = 'round';
+
+      const waves = [
+        { y: -labelRadius * 0.35, width: labelRadius * 0.8, height: 8, lineWidth: 5 },
+        { y: 0, width: labelRadius * 0.6, height: 6, lineWidth: 4 },
+        { y: labelRadius * 0.35, width: labelRadius * 0.45, height: 5, lineWidth: 3 }
+      ];
+
+      waves.forEach(wave => {
+        ctx.lineWidth = wave.lineWidth;
+        ctx.beginPath();
+        ctx.moveTo(-wave.width, wave.y);
+        ctx.quadraticCurveTo(-wave.width/2, wave.y - wave.height, 0, wave.y);
+        ctx.quadraticCurveTo(wave.width/2, wave.y + wave.height, wave.width, wave.y);
+        ctx.stroke();
+      });
+
+      // Center hole
+      ctx.beginPath();
+      ctx.arc(0, 0, radius * 0.05, 0, Math.PI * 2);
+      ctx.fillStyle = COLORS.bgDark;
+      ctx.fill();
+
+      // Shine effect
+      ctx.beginPath();
+      ctx.ellipse(-radius * 0.3, -radius * 0.3, radius * 0.25, radius * 0.1, -Math.PI / 4, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,255,255,0.02)';
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    // Draw floating music notes
+    function drawMusicNotes(ctx, width, height, count = 8) {
+      ctx.save();
+      ctx.font = 'bold 32px Arial';
+      ctx.fillStyle = 'rgba(29, 185, 84, 0.15)';
+
+      const notes = ['♪', '♫', '♬', '♩'];
+      for (let i = 0; i < count; i++) {
+        const x = Math.random() * width;
+        const y = Math.random() * height;
+        const note = notes[Math.floor(Math.random() * notes.length)];
+        const size = 20 + Math.random() * 30;
+        ctx.font = `bold ${size}px Arial`;
+        ctx.globalAlpha = 0.1 + Math.random() * 0.15;
+        ctx.fillText(note, x, y);
+      }
+      ctx.restore();
+    }
+
+    // Draw gradient background
+    function drawBackground(ctx, width, height) {
+      // Base gradient
+      const grad = ctx.createLinearGradient(0, 0, width, height);
+      grad.addColorStop(0, '#0a0a0a');
+      grad.addColorStop(0.5, '#0d1117');
+      grad.addColorStop(1, '#0a0a0a');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, width, height);
+
+      // Subtle radial glow
+      const glowGrad = ctx.createRadialGradient(width * 0.3, height * 0.4, 0, width * 0.3, height * 0.4, width * 0.6);
+      glowGrad.addColorStop(0, 'rgba(29, 185, 84, 0.08)');
+      glowGrad.addColorStop(1, 'transparent');
+      ctx.fillStyle = glowGrad;
+      ctx.fillRect(0, 0, width, height);
+
+      // Grid pattern
+      ctx.strokeStyle = 'rgba(255,255,255,0.02)';
+      ctx.lineWidth = 1;
+      const gridSize = 60;
+      for (let x = 0; x < width; x += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+      for (let y = 0; y < height; y += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+      }
+    }
+
+    // Draw logo text
+    function drawLogo(ctx, x, y, size) {
+      ctx.save();
+      ctx.font = `800 ${size}px Outfit, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      // Text shadow/glow
+      ctx.shadowColor = COLORS.spotifyGreen;
+      ctx.shadowBlur = 30;
+      ctx.fillStyle = COLORS.textPrimary;
+      ctx.fillText('Discotify', x, y);
+
+      ctx.shadowBlur = 0;
+      ctx.restore();
+    }
+
+    // Draw tagline
+    function drawTagline(ctx, x, y, size) {
+      ctx.save();
+      ctx.font = `400 ${size}px Outfit, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = COLORS.textMuted;
+      ctx.fillText('Play Spotify on Discogs', x, y);
+      ctx.restore();
+    }
+
+    // Draw brand badges
+    function drawBrands(ctx, x, y, scale = 1) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(scale, scale);
+
+      // Discogs badge
+      ctx.beginPath();
+      ctx.roundRect(-120, -20, 100, 40, 20);
+      ctx.fillStyle = '#333';
+      ctx.fill();
+      ctx.font = '600 16px Outfit';
+      ctx.fillStyle = '#fff';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('Discogs', -70, 0);
+
+      // Arrow
+      ctx.fillStyle = COLORS.spotifyGreen;
+      ctx.beginPath();
+      ctx.moveTo(-5, -8);
+      ctx.lineTo(15, 0);
+      ctx.lineTo(-5, 8);
+      ctx.closePath();
+      ctx.fill();
+
+      // Spotify badge
+      ctx.beginPath();
+      ctx.roundRect(30, -20, 100, 40, 20);
+      ctx.fillStyle = COLORS.spotifyGreen;
+      ctx.fill();
+      ctx.fillStyle = '#000';
+      ctx.fillText('Spotify', 80, 0);
+
+      ctx.restore();
+    }
+
+    // Draw mock browser window with extension
+    function drawBrowserMock(ctx, x, y, width, height) {
+      ctx.save();
+      ctx.translate(x, y);
+
+      // Browser shadow
+      ctx.shadowColor = 'rgba(0,0,0,0.5)';
+      ctx.shadowBlur = 40;
+      ctx.shadowOffsetY = 10;
+
+      // Browser frame
+      ctx.beginPath();
+      ctx.roundRect(0, 0, width, height, 12);
+      ctx.fillStyle = '#1e1e1e';
+      ctx.fill();
+
+      ctx.shadowColor = 'transparent';
+
+      // Title bar
+      ctx.fillStyle = '#2d2d2d';
+      ctx.beginPath();
+      ctx.roundRect(0, 0, width, 40, [12, 12, 0, 0]);
+      ctx.fill();
+
+      // Traffic lights
+      const dots = ['#ff5f57', '#febc2e', '#28c840'];
+      dots.forEach((color, i) => {
+        ctx.beginPath();
+        ctx.arc(20 + i * 20, 20, 6, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+      });
+
+      // URL bar
+      ctx.beginPath();
+      ctx.roundRect(100, 10, width - 120, 22, 6);
+      ctx.fillStyle = '#3d3d3d';
+      ctx.fill();
+      ctx.font = '12px monospace';
+      ctx.fillStyle = '#888';
+      ctx.fillText('discogs.com/release/12345', 110, 25);
+
+      // Content area - Discogs-like layout
+      ctx.fillStyle = '#f5f5f5';
+      ctx.fillRect(0, 40, width, height - 40);
+
+      // Mock Discogs header
+      ctx.fillStyle = '#333';
+      ctx.fillRect(0, 40, width, 50);
+      ctx.font = 'bold 18px Outfit';
+      ctx.fillStyle = '#fff';
+      ctx.fillText('DISCOGS', 20, 72);
+
+      // Content
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(20, 110, width - 40, height - 130);
+
+      // Album art placeholder
+      ctx.fillStyle = '#ddd';
+      ctx.fillRect(40, 130, 150, 150);
+
+      // Vinyl overlay on album
+      ctx.beginPath();
+      ctx.arc(115, 205, 60, 0, Math.PI * 2);
+      ctx.fillStyle = '#1a1a1a';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(115, 205, 20, 0, Math.PI * 2);
+      ctx.fillStyle = COLORS.spotifyGreen;
+      ctx.fill();
+
+      // Text lines
+      ctx.fillStyle = '#333';
+      ctx.font = 'bold 16px Outfit';
+      ctx.fillText('Pink Floyd', 210, 150);
+      ctx.font = '14px Outfit';
+      ctx.fillStyle = '#666';
+      ctx.fillText('The Dark Side of the Moon', 210, 175);
+      ctx.fillText('1973 • Vinyl, LP, Album', 210, 200);
+
+      // Spotify player embed (the extension's magic!)
+      ctx.fillStyle = COLORS.spotifyGreen;
+      ctx.globalAlpha = 0.1;
+      ctx.beginPath();
+      ctx.roundRect(210, 220, 250, 50, 8);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      ctx.strokeStyle = COLORS.spotifyGreen;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(210, 220, 250, 50, 8);
+      ctx.stroke();
+
+      // Play button
+      ctx.fillStyle = COLORS.spotifyGreen;
+      ctx.beginPath();
+      ctx.arc(245, 245, 18, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#000';
+      ctx.beginPath();
+      ctx.moveTo(240, 237);
+      ctx.lineTo(255, 245);
+      ctx.lineTo(240, 253);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.font = '13px Outfit';
+      ctx.fillStyle = COLORS.spotifyGreen;
+      ctx.fillText('▶ Listen on Spotify', 275, 240);
+      ctx.fillStyle = '#666';
+      ctx.font = '11px Outfit';
+      ctx.fillText('Added by Discotify', 275, 258);
+
+      // Extension popup floating
+      const popupX = width - 180;
+      const popupY = 60;
+
+      ctx.shadowColor = 'rgba(0,0,0,0.4)';
+      ctx.shadowBlur = 20;
+      ctx.shadowOffsetY = 5;
+
+      ctx.fillStyle = '#0a0a0a';
+      ctx.beginPath();
+      ctx.roundRect(popupX, popupY, 160, 120, 8);
+      ctx.fill();
+
+      ctx.shadowColor = 'transparent';
+
+      // Popup header
+      ctx.fillStyle = '#141414';
+      ctx.beginPath();
+      ctx.roundRect(popupX, popupY, 160, 35, [8, 8, 0, 0]);
+      ctx.fill();
+
+      // Mini vinyl in popup
+      ctx.beginPath();
+      ctx.arc(popupX + 22, popupY + 17, 12, 0, Math.PI * 2);
+      ctx.fillStyle = '#1a1a1a';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(popupX + 22, popupY + 17, 5, 0, Math.PI * 2);
+      ctx.fillStyle = COLORS.spotifyGreen;
+      ctx.fill();
+
+      ctx.font = 'bold 13px Outfit';
+      ctx.fillStyle = '#fff';
+      ctx.fillText('Discotify', popupX + 42, popupY + 22);
+
+      // Connected status
+      ctx.beginPath();
+      ctx.arc(popupX + 115, popupY + 17, 4, 0, Math.PI * 2);
+      ctx.fillStyle = COLORS.spotifyGreen;
+      ctx.fill();
+
+      ctx.font = '10px Outfit';
+      ctx.fillStyle = '#666';
+      ctx.fillText('Connected to Spotify', popupX + 15, popupY + 55);
+
+      // Toggle
+      ctx.fillStyle = COLORS.spotifyGreen;
+      ctx.beginPath();
+      ctx.roundRect(popupX + 110, popupY + 45, 35, 18, 9);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(popupX + 135, popupY + 54, 6, 0, Math.PI * 2);
+      ctx.fillStyle = '#fff';
+      ctx.fill();
+
+      // Button
+      ctx.fillStyle = COLORS.spotifyGreen;
+      ctx.beginPath();
+      ctx.roundRect(popupX + 15, popupY + 80, 130, 28, 14);
+      ctx.fill();
+      ctx.font = '600 11px Outfit';
+      ctx.fillStyle = '#000';
+      ctx.textAlign = 'center';
+      ctx.fillText('Save & Connect', popupX + 80, popupY + 98);
+      ctx.textAlign = 'left';
+
+      ctx.restore();
+    }
+
+    // ================== RENDER FUNCTIONS ==================
+
+    // Screenshot (1280x800)
+    function renderScreenshot() {
+      const canvas = document.getElementById('screenshot');
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+
+      drawBackground(ctx, w, h);
+      drawMusicNotes(ctx, w, h, 15);
+
+      // Large vinyl on the left
+      drawVinyl(ctx, -50, h * 0.5, 350, 0.2);
+
+      // Browser mockup
+      drawBrowserMock(ctx, 180, 80, 550, 400);
+
+      // Right side content
+      drawLogo(ctx, 950, 200, 64);
+      drawTagline(ctx, 950, 260, 22);
+      drawBrands(ctx, 950, 340, 1.2);
+
+      // Feature bullets
+      ctx.font = '18px Outfit';
+      ctx.fillStyle = COLORS.textMuted;
+      ctx.textAlign = 'center';
+      const features = [
+        '✓ Replace Apple Music players',
+        '✓ One-click Spotify playback',
+        '✓ Works on all Discogs pages'
+      ];
+      features.forEach((f, i) => {
+        ctx.fillText(f, 950, 420 + i * 35);
+      });
+
+      // Small vinyl decoration
+      drawVinyl(ctx, w - 80, h - 80, 120, -0.3);
+    }
+
+    // Small Promo Tile (440x280)
+    function renderSmallPromo() {
+      const canvas = document.getElementById('small-promo');
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+
+      drawBackground(ctx, w, h);
+
+      // Vinyl on right
+      drawVinyl(ctx, w + 30, h * 0.5, 180, 0.15);
+
+      // Content
+      drawLogo(ctx, w * 0.4, h * 0.38, 42);
+      drawTagline(ctx, w * 0.4, h * 0.55, 14);
+
+      // Mini brand flow
+      ctx.save();
+      ctx.translate(w * 0.4, h * 0.75);
+      ctx.scale(0.8, 0.8);
+
+      ctx.font = '600 14px Outfit';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#666';
+      ctx.fillText('Discogs', -50, 0);
+      ctx.fillStyle = COLORS.spotifyGreen;
+      ctx.fillText('→', 0, 0);
+      ctx.fillStyle = COLORS.spotifyGreen;
+      ctx.fillText('Spotify', 50, 0);
+      ctx.restore();
+    }
+
+    // Marquee Promo Tile (1400x560)
+    function renderMarqueePromo() {
+      const canvas = document.getElementById('marquee-promo');
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+
+      drawBackground(ctx, w, h);
+      drawMusicNotes(ctx, w, h, 20);
+
+      // Multiple vinyls for atmosphere
+      drawVinyl(ctx, -100, h * 0.5, 280, 0.1);
+      drawVinyl(ctx, w + 100, h * 0.5, 280, -0.1);
+
+      // Center content
+      drawLogo(ctx, w * 0.5, h * 0.35, 80);
+      drawTagline(ctx, w * 0.5, h * 0.5, 26);
+      drawBrands(ctx, w * 0.5, h * 0.68, 1.3);
+
+      // Decorative elements
+      ctx.save();
+      ctx.strokeStyle = COLORS.spotifyGreen;
+      ctx.lineWidth = 2;
+      ctx.globalAlpha = 0.3;
+
+      // Left decorative line
+      ctx.beginPath();
+      ctx.moveTo(w * 0.15, h * 0.35);
+      ctx.lineTo(w * 0.25, h * 0.35);
+      ctx.stroke();
+
+      // Right decorative line
+      ctx.beginPath();
+      ctx.moveTo(w * 0.75, h * 0.35);
+      ctx.lineTo(w * 0.85, h * 0.35);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    // Download function
+    function downloadCanvas(canvasId, filename) {
+      const canvas = document.getElementById(canvasId);
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    // Initialize on font load
+    document.fonts.ready.then(() => {
+      renderScreenshot();
+      renderSmallPromo();
+      renderMarqueePromo();
+    });
+  </script>
+</body>
+</html>
+
+
