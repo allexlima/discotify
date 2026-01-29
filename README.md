@@ -1,11 +1,8 @@
 # 🎵 Discotify
 
-<p>
-  <a href="https://chromewebstore.google.com/detail/discotify/ghbmjpggoefbcffdflkjnddhlibchlch">
-    <img src="https://storage.googleapis.com/web-dev-uploads/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/mPGKYBIR2uCP0ApchDXE.png" alt="Available in the Chrome Web Store">
-  </a>
-</p>
-
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/ghbmjpggoefbcffdflkjnddhlibchlch?label=Chrome%20Web%20Store&logo=googlechrome&logoColor=white&color=4285F4)](https://chromewebstore.google.com/detail/discotify/ghbmjpggoefbcffdflkjnddhlibchlch)
+[![Chrome Web Store Users](https://img.shields.io/chrome-web-store/users/ghbmjpggoefbcffdflkjnddhlibchlch?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/discotify/ghbmjpggoefbcffdflkjnddhlibchlch)
+[![Chrome Web Store Rating](https://img.shields.io/chrome-web-store/rating/ghbmjpggoefbcffdflkjnddhlibchlch?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/discotify/ghbmjpggoefbcffdflkjnddhlibchlch)
 [![Chrome](https://img.shields.io/badge/Chrome-supported-4285F4?logo=googlechrome&logoColor=white)](https://chrome.google.com)
 [![Edge](https://img.shields.io/badge/Edge-supported-0078D7?logo=microsoftedge&logoColor=white)](https://www.microsoft.com/edge)
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-34A853)](https://developer.chrome.com/docs/extensions/mv3/)
@@ -40,11 +37,7 @@
 
 #### Option A: Chrome Web Store (Recommended)
 
-<a href="https://chromewebstore.google.com/detail/discotify/ghbmjpggoefbcffdflkjnddhlibchlch">
-  <img src="https://storage.googleapis.com/web-dev-uploads/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/mPGKYBIR2uCP0ApchDXE.png" alt="Available in the Chrome Web Store">
-</a>
-
-Install directly from the [Chrome Web Store](https://chromewebstore.google.com/detail/discotify/ghbmjpggoefbcffdflkjnddhlibchlch)
+[**→ Install from Chrome Web Store**](https://chromewebstore.google.com/detail/discotify/ghbmjpggoefbcffdflkjnddhlibchlch)
 
 #### Option B: Manual Installation (Development)
 
