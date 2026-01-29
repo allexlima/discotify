@@ -40,7 +40,7 @@ jobs:
           echo "Updated manifest.json to version $VERSION"
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Build extension
         run: npm run build
